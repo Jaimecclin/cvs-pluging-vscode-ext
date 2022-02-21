@@ -10,21 +10,28 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:cvs-plugin.helloWorld"
+        "onCommand:cvs-plugin.helloWorld",
+		"onCommand:cvs-plugin.status"
 	],
 	"main": "./extension.js",
 	"contributes": {
-		"commands": [{
-            "command": "cvs-plugin.helloWorld",
-            "title": "Hello World"
-
-		}],
+		"commands": [
+			{
+				"command": "cvs-plugin.helloWorld",
+				"title": "Hello World"
+			},
+			{
+				"command": "cvs-plugin.status",
+				"title": "cvs status"
+			}
+		],
 		"viewsContainers": {
 			"activitybar": [
 			  {
 				"id": "cvs-plugin",
 				"title": "CVS-plugin",
-				"icon": "resources/banana-svgrepo-com.svg"
+				"icon": "resources/banana-svgrepo-com.svg",
+				"contextualTitle": "CVS-plugin"
 			  }
 			]
 		},

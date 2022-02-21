@@ -24,7 +24,12 @@ function activate(context) {
 		vscode.window.showInformationMessage('Hello World from CVS-plugin!');
 	});
 
+	let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', function () {
+		vscode.window.showInformationMessage('cvs status from CVS-plugin!');
+	});
+
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(cvsStatus);
 }
 
 // this method is called when your extension is deactivated
