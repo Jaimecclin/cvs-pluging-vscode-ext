@@ -2,69 +2,69 @@
   "name": "cvs-plugin",
   "publisher": "CVS-Plugin",
   "repository": {
-	"type": "git",
-	"url": "https://github.com/Jaimecclin/cvs-pluging-vscode-ext"
+  "type": "git",
+  "url": "https://github.com/Jaimecclin/cvs-pluging-vscode-ext"
   },
-	"displayName": "CVS-plugin",
-	"description": "a cvs version control extension",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.64.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
+  "displayName": "CVS-plugin",
+  "description": "a cvs version control extension",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.64.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
         "onCommand:cvs-plugin.helloWorld",
-		"onCommand:cvs-plugin.status",
-		"onCommand:cvs-plugin.cmdTest"
-	],
-	"main": "./extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "cvs-plugin.helloWorld",
-				"title": "Hello World"
-			},
-			{
-				"command": "cvs-plugin.status",
-				"title": "cvs status"
-			}
-			,
-			{
-				"command": "cvs-plugin.cmdTest",
-				"title": "Test Command"
-			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-			  {
-				"id": "cvs-plugin",
-				"title": "CVS-plugin",
-				"icon": "resources/banana-svgrepo-com.svg",
-				"contextualTitle": "CVS-plugin"
-			  }
-			]
-		},
-		"views": {
-			"cvs-plugin": [
-			  {
-				"id": "changed-files",
-				"name": "Changed Files"
-			  },
-			  {
-				"id": "view-2",
-				"name": "view-2"
-			  }
-			]
-		  }
-	},
-	"scripts": {
-		"lint": "eslint .",
-		"pretest": "yarn run lint",
-		"test": "node ./test/runTest.js"
-	},
-	"devDependencies": {
+    "onCommand:cvs-plugin.status",
+    "onCommand:cvs-plugin.cmdTest"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cvs-plugin.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "cvs-plugin.status",
+        "title": "cvs status"
+      }
+      ,
+      {
+        "command": "cvs-plugin.cmdTest",
+        "title": "Test Command"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+        "id": "cvs-plugin",
+        "title": "CVS-plugin",
+        "icon": "resources/banana-svgrepo-com.svg",
+        "contextualTitle": "CVS-plugin"
+        }
+      ]
+    },
+    "views": {
+      "cvs-plugin": [
+        {
+        "id": "changed-files",
+        "name": "Changed Files"
+        },
+        {
+        "id": "view-2",
+        "name": "view-2"
+        }
+      ]
+      }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "yarn run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
         "@types/vscode": "^1.64.0",
         "@types/glob": "^7.2.0",
         "@types/mocha": "^9.0.0",
