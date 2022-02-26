@@ -11,7 +11,8 @@
 	],
 	"activationEvents": [
         "onCommand:cvs-plugin.helloWorld",
-		"onCommand:cvs-plugin.status"
+		"onCommand:cvs-plugin.status",
+		"onCommand:cvs-plugin.cmdTest"
 	],
 	"main": "./extension.js",
 	"contributes": {
@@ -23,6 +24,11 @@
 			{
 				"command": "cvs-plugin.status",
 				"title": "cvs status"
+			}
+			,
+			{
+				"command": "cvs-plugin.cmdTest",
+				"title": "Test Command"
 			}
 		],
 		"viewsContainers": {
