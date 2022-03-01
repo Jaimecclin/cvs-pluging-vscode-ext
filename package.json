@@ -1,9 +1,9 @@
 {
   "name": "cvs-plugin",
-  "publisher": "CVS-Plugin",
+  "publisher": "jaimelin",
   "repository": {
-  "type": "git",
-  "url": "https://github.com/Jaimecclin/cvs-pluging-vscode-ext"
+    "type": "git",
+    "url": "https://github.com/Jaimecclin/cvs-pluging-vscode-ext"
   },
   "displayName": "CVS-plugin",
   "description": "a cvs version control extension",
