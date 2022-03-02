@@ -7,7 +7,7 @@
   },
   "displayName": "CVS-plugin",
   "description": "a cvs version control extension",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.64.0"
   },
