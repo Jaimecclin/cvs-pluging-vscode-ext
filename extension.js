@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const cp = require('child_process')
 const path = require('path')
 const fs = require("fs");
+const ps = require('process');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -29,12 +30,20 @@ function activate(context) {
 		else {
 			rootPath = vscode.workspace.rootPath;
 		}
-		// console.log("vscode.workspace.workspaceFolders:", vscode.workspace.workspaceFolders);
+		console.log("rootPath:", rootPath);
 	}
+
+	let platform = process.platform; //windows: win32, linux: linux, MacOS: darwin
+	console.log("OS: ", process.platform);
+	
 	const debug = true;
 
 	function exeCommand(command) {
 		// Example: command = "powershell ls";
+		if(platform == 'win32') {
+			command = "powershell " + command;
+		}
+		console.log("Command: ", command)
 		cp.exec(command, (err, stdout, stderr) => {
 			let result = stdout;
 			console.log('stdout: ' + stdout);
@@ -68,8 +77,31 @@ function activate(context) {
 	});
 
 	let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', function () {
-		const command = 'powershell cvs status'
-		exeCommand(command);;
+		const command = 'cvs status'
+		exeCommand(command);
+		let data = 
+			`
+			===================================================================
+			File: optPlacePhase.cpp	Status: Up-to-date
+			
+			Working revision:	1.229
+			Repository revision:	1.229	/home/apcvs/cvsroot/work/src/opt/optPlacePhase.cpp,v
+			Sticky Tag:		(none)
+			Sticky Date:		(none)
+			Sticky Options:	(none)
+			
+			===================================================================
+			File: optPlacePhase.h  	Status: Up-to-date
+			
+			Working revision:	1.38
+			Repository revision:	1.38	/home/apcvs/cvsroot/work/src/opt/optPlacePhase.h,v
+			Sticky Tag:		(none)
+			Sticky Date:		(none)
+			Sticky Options:	(none)
+			`;
+		
+		// fs.fileReadSync('data/cvs_status.log', data, 'utf8')
+		
 	});
 
 	let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
