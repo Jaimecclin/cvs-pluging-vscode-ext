@@ -23,13 +23,13 @@ function activate(context) {
 		rootPath = vscode.workspace.rootPath;
 	}
 	else { // TODO: Test
-		let root = vscode.workspace.workspaceFolders;
-		if (vscode.workspace.workspaceFolders.length === 1) {
-			root = vscode.workspace.workspaceFolders[0];
-		} else {
-			// root = vscode.workspace.getWorkspaceFolder(resource);
+		if(vscode.workspace.workspaceFolders.length > 0) {
+			rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 		}
-		rootPath = root.uri.fsPath;
+		else {
+			rootPath = vscode.workspace.rootPath;
+		}
+		// console.log("vscode.workspace.workspaceFolders:", vscode.workspace.workspaceFolders);
 	}
 	const debug = true;
 

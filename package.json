@@ -6,8 +6,8 @@
     "url": "https://github.com/Jaimecclin/cvs-pluging-vscode-ext"
   },
   "displayName": "CVS-plugin",
-  "description": "a cvs version control extension",
-  "version": "0.0.4",
+  "description": "A CVS version control extension",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.64.0"
   },
@@ -41,7 +41,7 @@
         {
           "id": "cvs-plugin",
           "title": "CVS-plugin",
-          "icon": "resources/banana-svgrepo-com.svg",
+          "icon": "resources/ink-swirl-svgrepo-com.svg",
           "contextualTitle": "CVS-plugin"
         }
       ]
