@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "cvs-plugin" is now active!');
 
-    let rootPath = '';
+    let rootPath :string | undefined = '';
     if (!vscode.workspace.workspaceFolders) {
         rootPath = vscode.workspace.rootPath;
     }
@@ -90,10 +90,10 @@ export function activate(context: vscode.ExtensionContext) {
                 let files: string[] = [];
                 for(let i=0; i<splited.length; i++){
                     const matched = regexp.exec(splited[i]);
-                    if(matched != null){
+                    if(matched != null && matched.groups){
                         files.push(matched.groups.filename.trim());
-                        console.log(matched.groups.filename.trim());
-                        console.log(matched.groups.status)
+                        // console.log(matched.groups.filename.trim());
+                        // console.log(matched.groups.status)
                     }
                 }
                 const nodeDependenciesProvider = new NodeProvider(rootPath);
@@ -129,8 +129,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
-        const inputCmd :string = await vscode.window.showInputBox();
-        exeCommand(inputCmd);
+        const inputCmd :string | undefined = await vscode.window.showInputBox();
+        if(inputCmd)
+            exeCommand(inputCmd);
     });
 
     context.subscriptions.push(disposable);

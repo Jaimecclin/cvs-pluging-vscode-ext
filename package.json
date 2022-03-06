@@ -10,7 +10,7 @@
     "description": "A CVS version control extension",
     "version": "0.0.6",
     "engines": {
-      "vscode": "^1.64.0"
+      "vscode": "^1.65.0"
     },
     "categories": [
       "Other"
@@ -31,11 +31,12 @@
           "command": "cvs-plugin.status",
           "title": "cvs status",
           "icon": "resources/dark/refresh.svg"
-        },
-        {
-          "command": "cvs-plugin.cmdTest",
-          "title": "TestCommand"
         }
+        // ,
+        // {
+        //   "command": "cvs-plugin.cmdTest",
+        //   "title": "TestCommand"
+        // }
       ],
       "viewsContainers": {
         "activitybar": [
