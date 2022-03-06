@@ -36,34 +36,37 @@ export function activate(context: vscode.ExtensionContext) {
     
     const debug = true;
 
+    function dumpLog(data: string) {
+        if(debug && rootPath) {
+            const filePath = path.join(rootPath, 'fileName.extension');
+            fs.appendFileSync(filePath, data, 'utf8');
+    
+            const openPath = vscode.Uri.file(filePath);
+            vscode.workspace.openTextDocument(openPath).then(doc => {
+                vscode.window.showTextDocument(doc);
+            });
+        }
+    }
+
     function exeCommand(command: string) {
         // Example: command = "powershell ls";
         if(platform == 'win32') {
             command = "powershell " + command;
         }
-		let aaa = "";
         console.log("Command: ", command)
-        // cp.exec(command, (err, stdout, stderr) => {
-        //     let result = stdout;
-        //     // console.log('stdout: ' + stdout);
-        //     // console.log('stderr: ' + stderr);
-        //     if (err) {
-        //         console.log('error: ' + err);
-        //         result += stderr;
-        //     }
-        //     aaa = result;
-        //     // vscode.window.showInformationMessage(result);
-        //     if(debug) {
-        //         const filePath = path.join(rootPath, 'fileName.extension');
-        //         fs.writeFileSync(filePath, result, 'utf8');
-        
-        //         const openPath = vscode.Uri.file(filePath);
-        //         vscode.workspace.openTextDocument(openPath).then(doc => {
-        //             vscode.window.showTextDocument(doc);
-        //         });
-        //     }
-        // });
-		// cp.execSync(command, cp.ExecSyncOptions());
+        cp.exec(command, (err, stdout, stderr) => {
+            let result = stdout;
+            // console.log('stdout: ' + stdout);
+            // console.log('stderr: ' + stderr);
+            if (err) {
+                console.log('error: ' + err);
+                result += stderr;
+            }
+            
+            dumpLog(result);
+
+            vscode.window.showInformationMessage("Success");
+        });
     }
 
     // The command has been defined in the package.json file
@@ -79,11 +82,11 @@ export function activate(context: vscode.ExtensionContext) {
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
         const cvs = new CVS(platform);
         const res = await cvs.onGetStatus();
+        dumpLog("cvs-plugin.status log: \n" + res.toString());
         if (res[0]) {
             vscode.window.showErrorMessage('Unable to show changes in local copy of repository:');
         }
         else {
-            console.log(res[1])
             if (res[1]) {
                 const regexp = /File: (?<filename>.+) *Status: (?<status>.+)/;
                 const splited = res[1].split('\n');
