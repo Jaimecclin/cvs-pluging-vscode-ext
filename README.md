@@ -13,7 +13,17 @@ This extension is to help people stuck with poor and out-of-date version control
 
 Get changed file list from current repository.
 
-![refresh-demo](/resources/readme/refresh-demo.png "Refresh Demo")
+1. Press the refresh button
+
+    ![refresh-demo](/resources/readme/refresh-demo.png "Refresh Demo")
+
+2. Wait
+
+    ![refreshing](/resources/readme/refreshing-demo.png "Refreshing Demo")
+
+3. See the modified files
+
+    ![refreshed](/resources/readme/refreshed-demo.png "Refreshed Demo")
 
 ### cvs update
 
