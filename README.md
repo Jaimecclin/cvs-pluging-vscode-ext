@@ -19,11 +19,11 @@ Get changed file list from current repository.
 
 2. Wait
 
-    ![refreshing](/resources/readme/refreshing-demo.png "Refreshing Demo")
+    ![refreshing-demo](/resources/readme/refreshing-demo.png "Refreshing Demo")
 
 3. See the modified files
 
-    ![refreshed](/resources/readme/refreshed-demo.png "Refreshed Demo")
+    ![refreshed-demo](/resources/readme/refreshed-demo.png "Refreshed Demo")
 
 ### cvs update
 
