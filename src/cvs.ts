@@ -47,6 +47,26 @@ export class CVS {
             proc.stdout
             .on("data", (chunk: string | Buffer) => {
                 changes += chunk.toString().replace(/[\r\n]/g, '\n');
+                // changes = 
+                //     `
+                //     ===================================================================
+                //     File: optPlacePhase.cpp    Status: Up-to-date
+                    
+                //     Working revision:    1.229
+                //     Repository revision:    1.229    /home/apcvs/cvsroot/work/src/opt/optPlacePhase.cpp,v
+                //     Sticky Tag:        (none)
+                //     Sticky Date:        (none)
+                //     Sticky Options:    (none)
+                    
+                //     ===================================================================
+                //     File: optPlacePhase.h      Status: Up-to-date
+                    
+                //     Working revision:    1.38
+                //     Repository revision:    1.38    /home/apcvs/cvsroot/work/src/opt/optPlacePhase.h,v
+                //     Sticky Tag:        (none)
+                //     Sticky Date:        (none)
+                //     Sticky Options:    (none)
+                //     `;
             });
 
             proc.stderr

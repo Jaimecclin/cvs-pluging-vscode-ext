@@ -80,55 +80,45 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
-        const cvs = new CVS(platform);
-        const res = await cvs.onGetStatus();
-        dumpLog("cvs-plugin.status log: \n" + res.toString());
-        if (res[0]) {
-            vscode.window.showErrorMessage('Unable to show changes in local copy of repository:');
-        }
-        else {
-            if (res[1]) {
-                const regexp = /File: (?<filename>.+) *Status: (?<status>.+)/;
-                const splited = res[1].split('\n');
-                let files: string[] = [];
-                for(let i=0; i<splited.length; i++){
-                    const matched = regexp.exec(splited[i]);
-                    if(matched != null && matched.groups){
-                        files.push(matched.groups.filename.trim());
-                        // console.log(matched.groups.filename.trim());
-                        // console.log(matched.groups.status)
-                    }
-                }
-                const nodeDependenciesProvider = new NodeProvider(rootPath);
-                nodeDependenciesProvider.getData(files);
-                vscode.window.registerTreeDataProvider('changed-files', nodeDependenciesProvider);
+
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Window,
+            cancellable: false,
+            title: 'CVS-plugin updating'
+        }, async progress => {
+
+            // progress.report({ message: '0' });
+
+            const cvs = new CVS(platform);
+            const res = await cvs.onGetStatus();
+            dumpLog("cvs-plugin.status log: \n" + res.toString());
+
+            if (res[0]) {
+                vscode.window.showErrorMessage('Unable to show changes in local copy of repository:');
             }
             else {
-                vscode.window.showErrorMessage('There are no changes.');
+                if (res[1]) {
+                    const regexp = /File: (?<filename>.+) *Status: (?<status>.+)/;
+                    const splited = res[1].split('\n');
+                    let files: string[] = [];
+                    for(let i=0; i<splited.length; i++){
+                        const matched = regexp.exec(splited[i]);
+                        if(matched != null && matched.groups){
+                            files.push(matched.groups.filename.trim());
+                            // console.log(matched.groups.filename.trim());
+                            // console.log(matched.groups.status)
+                        }
+                    }
+                    const nodeDependenciesProvider = new NodeProvider(rootPath);
+                    nodeDependenciesProvider.getData(files);
+                    vscode.window.registerTreeDataProvider('changed-files', nodeDependenciesProvider);
+                }
+                else {
+                    vscode.window.showErrorMessage('There are no changes.');
+                }
             }
-        }
+        });
         
-        // const regexp = /File: (?<filename>.+) *Status: (?<status>.+)/;
-        // let data = 
-        //     `
-        //     ===================================================================
-        //     File: optPlacePhase.cpp    Status: Up-to-date
-            
-        //     Working revision:    1.229
-        //     Repository revision:    1.229    /home/apcvs/cvsroot/work/src/opt/optPlacePhase.cpp,v
-        //     Sticky Tag:        (none)
-        //     Sticky Date:        (none)
-        //     Sticky Options:    (none)
-            
-        //     ===================================================================
-        //     File: optPlacePhase.h      Status: Up-to-date
-            
-        //     Working revision:    1.38
-        //     Repository revision:    1.38    /home/apcvs/cvsroot/work/src/opt/optPlacePhase.h,v
-        //     Sticky Tag:        (none)
-        //     Sticky Date:        (none)
-        //     Sticky Options:    (none)
-        //     `;
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
