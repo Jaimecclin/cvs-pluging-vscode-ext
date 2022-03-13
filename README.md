@@ -5,7 +5,10 @@ This extension is to help people stuck with poor and out-of-date version control
 
 # Status 
 
-*Under construction*
+### Tested environment
+
+  1. Ubuntu 20.04
+   * Concurrent Versions System (CVS) 1.12.13-MirDebian-27 (client/server)
 
 # Functions
 
@@ -25,8 +28,18 @@ Get changed file list from current repository.
 
     ![refreshed-demo](/resources/readme/refreshed-demo.png "Refreshed Demo")
 
+### cvs diff file
+
+    *Under construction*
+
 ### cvs update
+
+    *Under construction*
 
 ### cvs commit
 
-**Enjoy!**
+    *Under construction*
+
+
+
+**Any bugs, please report it to this repository. Enjoy!**
