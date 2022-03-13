@@ -1,26 +1,33 @@
+import * as vscode from 'vscode';
 import {spawn} from 'child_process';
+
+let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
 
 export class CVS {
 
+    private folderRoot;
     private platform;
 
-    constructor(platform: string) {
+    constructor(folderRoot: string, platform: string) {
+        this.folderRoot = folderRoot;
         this.platform = platform;
     };
 
     private createCommand(cmd: string, options: string[]=[]) {
+        // WhiteBoard.appendLine("execute place:" + this.folderRoot);
+        // WhiteBoard.show();
         if (this.platform === 'win32') {
             options.unshift(cmd);
-            return spawn('powershell', options);
+            return spawn('powershell', options, {cwd: this.folderRoot});
         }
         else {
-            return spawn(cmd, options);
+            return spawn(cmd, options, {cwd: this.folderRoot});
         }
         
     }
     
     onGetStatus(): Promise<[number, string | undefined]> {
-        const proc = this.createCommand('cvs update');
+        const proc = this.createCommand('cvs', ['status']);
         // TODO: Reduce the data
         // const proc = spawn(
         //     'cvs', 
@@ -40,39 +47,21 @@ export class CVS {
             });
 
             proc.once('error', (err: Error) => {
-                console.error("process error")
+                // console.error("process error")
+                // WhiteBoard.appendLine('process error');
                 reject(err);
             });
 
             proc.stdout
             .on("data", (chunk: string | Buffer) => {
                 changes += chunk.toString().replace(/[\r\n]/g, '\n');
-                // changes = 
-                //     `
-                //     ===================================================================
-                //     File: optPlacePhase.cpp    Status: Up-to-date
-                    
-                //     Working revision:    1.229
-                //     Repository revision:    1.229    /home/apcvs/cvsroot/work/src/opt/optPlacePhase.cpp,v
-                //     Sticky Tag:        (none)
-                //     Sticky Date:        (none)
-                //     Sticky Options:    (none)
-                    
-                //     ===================================================================
-                //     File: optPlacePhase.h      Status: Up-to-date
-                    
-                //     Working revision:    1.38
-                //     Repository revision:    1.38    /home/apcvs/cvsroot/work/src/opt/optPlacePhase.h,v
-                //     Sticky Tag:        (none)
-                //     Sticky Date:        (none)
-                //     Sticky Options:    (none)
-                //     `;
             });
 
             proc.stderr
             .on("data", (chunk: string | Buffer) => {
                 // this.m_Logger.print(chunk as string);
-                console.error("stderr")
+                // console.error("stderr")
+                // WhiteBoard.appendLine('stderr');
             });
         });
     }
