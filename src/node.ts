@@ -19,6 +19,10 @@ export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
     }
 
     getChildren(element?: ChangedItem): Thenable<ChangedItem[]> {
+        // Only present the root level
+        if(element) {
+            return Promise.resolve([]);
+        }
         if (!this.workspaceRoot) {
             vscode.window.showInformationMessage('No dependency in empty workspace');
             return Promise.resolve([]);

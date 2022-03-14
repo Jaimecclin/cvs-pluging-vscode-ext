@@ -103,7 +103,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             // progress.report({ message: '0' });
             if(!rootPath) {
-                vscode.window.showErrorMessage('There are no changes.');
+                vscode.window.showErrorMessage('No set cvs root path');
                 return;
             }
 
@@ -111,7 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
             const res = await cvs.onGetStatus();
 
             if (res[0]) {
-                vscode.window.showErrorMessage('Unable to show changes in local copy of repository:');
+                vscode.window.showErrorMessage('Unable to show changes in local copy of repository.');
             }
             else {
                 if (res[1]) {
@@ -127,9 +127,9 @@ export function activate(context: vscode.ExtensionContext) {
                             // console.log(matched.groups.status)
                         }
                     }
-                    const nodeDependenciesProvider = new NodeProvider(rootPath);
-                    nodeDependenciesProvider.getData(files);
-                    vscode.window.registerTreeDataProvider('changed-files', nodeDependenciesProvider);
+                    const nodeProvider = new NodeProvider(rootPath);
+                    nodeProvider.getData(files);
+                    vscode.window.registerTreeDataProvider('changed-files', nodeProvider);
                 }
                 else {
                     vscode.window.showErrorMessage('There are no changes.');
