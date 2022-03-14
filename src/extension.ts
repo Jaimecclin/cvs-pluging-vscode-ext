@@ -115,16 +115,13 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 if (res[1]) {
-                    const regexp = /File: (?<filename>.+) *Status: (?<status>.+)/;
+                    const regexp = /(?<status>[UM]) (?<filename>.+)/;
                     const splited = res[1].split('\n');
                     let files: string[] = [];
                     for(let i=0; i<splited.length; i++){
                         const matched = regexp.exec(splited[i]);
                         if(matched != null && matched.groups){
-                            if(matched.groups.status.includes('Locally Modified'))
-                                files.push(matched.groups.filename.trim());
-                            // console.log(matched.groups.filename.trim());
-                            // console.log(matched.groups.status)
+                            files.push(matched.groups.filename.trim());
                         }
                     }
                     const nodeProvider = new NodeProvider(rootPath);

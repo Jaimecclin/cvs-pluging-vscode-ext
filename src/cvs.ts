@@ -27,7 +27,7 @@ export class CVS {
     }
     
     onGetStatus(): Promise<[number, string | undefined]> {
-        const proc = this.createCommand('cvs', ['status']);
+        const proc = this.createCommand('cvs', ['-qn', 'update']);
         // TODO: Reduce the data
         // const proc = spawn(
         //     'cvs', 
