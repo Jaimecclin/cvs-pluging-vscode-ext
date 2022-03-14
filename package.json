@@ -16,17 +16,12 @@
       "Other"
     ],
     "activationEvents": [
-      "onCommand:cvs-plugin.helloWorld",
       "onCommand:cvs-plugin.status",
       "onCommand:cvs-plugin.cmdTest"
     ],
     "main": "./out/extension.js",
     "contributes": {
       "commands": [
-        {
-          "command": "cvs-plugin.helloWorld",
-          "title": "Hello World"
-        },
         {
           "command": "cvs-plugin.status",
           "title": "cvs status",
