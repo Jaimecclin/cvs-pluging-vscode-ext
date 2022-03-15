@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import {spawn} from 'child_process';
 
-let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
+// let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
 
 export class CVS {
 

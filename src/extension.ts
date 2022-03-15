@@ -6,10 +6,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ps from 'process';
 
-import { NodeProvider } from './node';
+import { NodeProvider, File } from './node';
 import { CVS } from './cvs'
 
-let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
+// let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     let rootPath :string | undefined = '';
     if (!vscode.workspace.workspaceFolders) {
         rootPath = vscode.workspace.rootPath;
-        WhiteBoard.appendLine('Not workspace');
+        // WhiteBoard.appendLine('Not workspace');
     }
     else { // TODO: Test
         if(vscode.workspace.workspaceFolders.length > 0) {
@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showErrorMessage('CVS-plugin cannot access correct folder.');
     }
 
-    WhiteBoard.show();
+    // WhiteBoard.show();
 
     let platform = process.platform; //windows: win32, linux: linux, MacOS: darwin
     console.log("OS: ", process.platform);
@@ -115,13 +115,25 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 if (res[1]) {
-                    const regexp = /(?<status>[UM]) (?<filename>.+)/;
+                    const regexp = /(?<status>[UMC?]) (?<filename>.+)/;
                     const splited = res[1].split('\n');
-                    let files: string[] = [];
+                    let files: File[] = [];
                     for(let i=0; i<splited.length; i++){
                         const matched = regexp.exec(splited[i]);
                         if(matched != null && matched.groups){
-                            files.push(matched.groups.filename.trim());
+                            let status = 0;
+                            const filename = matched.groups.filename.trim();
+                            if(matched.groups.status === 'M')
+                                status = 0;
+                            else if(matched.groups.status === '?')
+                                status = 1;
+                            else if(matched.groups.status === 'U')
+                                status = 2;
+                            else if(matched.groups.status === 'C')
+                                status = 3;
+                            else
+                                continue;
+                            files.push(new File(filename, filename, status));
                         }
                     }
                     const nodeProvider = new NodeProvider(rootPath);
@@ -137,9 +149,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
-        const inputCmd :string | undefined = await vscode.window.showInputBox();
-        if(inputCmd)
-            exeCommand(inputCmd);
+        // const inputCmd :string | undefined = await vscode.window.showInputBox();
+        // if(inputCmd)
+        //     exeCommand(inputCmd);
     });
 
     context.subscriptions.push(disposable);
