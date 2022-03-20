@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import {spawn} from 'child_process';
 
-// let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
+// let WhiteBoard2 = vscode.window.createOutputChannel("WhiteBoard2");
 
 export class CVS {
 
@@ -14,8 +14,6 @@ export class CVS {
     };
 
     private createCommand(cmd: string, options: string[]=[]) {
-        // WhiteBoard.appendLine("execute place:" + this.folderRoot);
-        // WhiteBoard.show();
         if (this.platform === 'win32') {
             options.unshift(cmd);
             return spawn('powershell', options, {cwd: this.folderRoot});
@@ -23,7 +21,46 @@ export class CVS {
         else {
             return spawn(cmd, options, {cwd: this.folderRoot});
         }
-        
+    }
+
+    onGetRevision(filePath: string): Promise<[number, string | undefined]> {
+        const cvs = this.createCommand("cvs", ["-bSN", "log", filePath]);
+        const head = this.createCommand("head", ["-n", "30"]);
+        const grep = this.createCommand('grep', ["-m", "1", "-Po", "'(?<=revision )[^ ]+'"]);
+
+        cvs.stdout.pipe(grep.stdin);
+        head.stdout.pipe(cvs.stdin);
+        grep.stdout.pipe(process.stdin);
+
+        return new Promise((resolve, reject) => {
+            let res = '';
+            grep.once('exit', (code: number, signal: string) => {
+                if (res.length) {
+                    resolve([code, res]);
+                }
+                else {
+                    resolve([code, undefined]);
+                }
+            });
+
+            grep.once('error', (err: Error) => {
+                reject(err);
+            });
+
+            grep.stdout
+            .on("data", (chunk: string | Buffer) => {
+                res += chunk.toString().replace(/[\r\n]/g, '\n');
+            });
+
+            grep.stderr
+            .on("data", (chunk: string | Buffer) => {
+            });
+        });
+    }
+
+    onGetDiff(): Promise<[number, string | undefined]> {
+
+        return new Promise((resolve, reject) => {});
     }
     
     onGetStatus(): Promise<[number, string | undefined]> {
