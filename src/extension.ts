@@ -19,29 +19,39 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "cvs-plugin" is now active!');
 
-    let rootPath :string | undefined = '';
+    let workspaceRoot :string | undefined = '';
+    let extRoot :string | undefined = context.extensionPath;
+    let repoName: string = '';
     if (!vscode.workspace.workspaceFolders) {
-        rootPath = vscode.workspace.rootPath;
+        workspaceRoot = vscode.workspace.rootPath;
         // WhiteBoard.appendLine('Not workspace');
     }
     else { // TODO: Test
         if(vscode.workspace.workspaceFolders.length > 0) {
-            rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
             
             // for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
             //     WhiteBoard.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
             // }
         }
         else {
-            rootPath = vscode.workspace.rootPath;
+            workspaceRoot = vscode.workspace.rootPath;
             // WhiteBoard.appendLine('workspace else');
         }
-        // WhiteBoard.appendLine("rootPath:" + rootPath);
     }
 
-    if(!rootPath) {
+    if(!workspaceRoot) {
         vscode.window.showErrorMessage('CVS-plugin cannot access correct folder.');
+        return;
     }
+    
+    const cvsRepo = path.join(workspaceRoot, 'CVS', 'Repository');
+    try {
+        repoName = fs.readFileSync(cvsRepo, 'utf8');
+    } catch (err) {
+        vscode.window.showErrorMessage('CVS-plugin cannot find CVS/Repository in the workspace.');
+    }
+    // WhiteBoard.appendLine('repo name: ' + repoName);
 
     // WhiteBoard.show();
 
@@ -51,8 +61,8 @@ export function activate(context: vscode.ExtensionContext) {
     const debug = true;
 
     function dumpLog(data: string) {
-        if(debug && rootPath) {
-            const filePath = path.join(rootPath, 'fileName.extension');
+        if(debug && workspaceRoot) {
+            const filePath = path.join(workspaceRoot, 'fileName.extension');
             fs.appendFileSync(filePath, data, 'utf8');
     
             const openPath = vscode.Uri.file(filePath);
@@ -102,12 +112,12 @@ export function activate(context: vscode.ExtensionContext) {
         }, async progress => {
 
             // progress.report({ message: '0' });
-            if(!rootPath) {
+            if(!workspaceRoot) {
                 vscode.window.showErrorMessage('No set cvs root path');
                 return;
             }
 
-            const cvs = new CVS(rootPath, platform);
+            const cvs = new CVS(workspaceRoot, platform);
             const res = await cvs.onGetStatus();
 
             if (res[0]) {
@@ -136,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
                             files.push(new File(filename, filename, status));
                         }
                     }
-                    const nodeProvider = new NodeProvider(rootPath);
+                    const nodeProvider = new NodeProvider(workspaceRoot);
                     nodeProvider.getData(files);
                     vscode.window.registerTreeDataProvider('changed-files', nodeProvider);
                 }
@@ -148,11 +158,30 @@ export function activate(context: vscode.ExtensionContext) {
         
     });
 
-    let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
+    // let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
         // const inputCmd :string | undefined = await vscode.window.showInputBox();
         // if(inputCmd)
         //     exeCommand(inputCmd);
-    });
+        // let uri1 = vscode.Uri.file('C:\\Users\\Chien-Chin Lin\\Documents\\Works\\vscode\\example-ext\\src\\node.ts');
+        // let success = await vscode.commands.executeCommand('vscode.openFolder', uri);
+        // console.log(uri1);
+        // let success = await vscode.commands.executeCommand("vscode.diff", uri1, uri1);
+        // WhiteBoard.appendLine("onGetRevision");
+        // const cvs = new CVS(workspaceRoot, platform);
+        // const res = await cvs.onGetRevision("ChangeLog");
+        // WhiteBoard.appendLine("After onGetRevision");
+        // if (res[0]) {
+        //     // vscode.window.showErrorMessage('Unable to show changes in local copy of repository.');
+        //     WhiteBoard.appendLine("1");
+        // }
+        // else {
+        //     if (res[1]) {
+        //         WhiteBoard.appendLine("2");
+        //         WhiteBoard.appendLine(res[1]);
+        //     }
+        // }
+        // WhiteBoard.show();
+    // });
 
     context.subscriptions.push(disposable);
     context.subscriptions.push(cvsStatus);
