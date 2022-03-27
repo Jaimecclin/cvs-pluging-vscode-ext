@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import {spawn} from 'child_process';
 
-// let WhiteBoard2 = vscode.window.createOutputChannel("WhiteBoard2");
+let WhiteBoard2 = vscode.window.createOutputChannel("WhiteBoard2");
 
 export class CVS {
 
@@ -58,9 +58,31 @@ export class CVS {
         });
     }
 
-    onGetDiff(): Promise<[number, string | undefined]> {
+    onGetDiff(filePath: string): Promise<[number, string | undefined]> {
+        const diff = this.createCommand('cvs', ['diff', '-u', filePath]);
+        return new Promise((resolve, reject) => {
+            let content = '';
 
-        return new Promise((resolve, reject) => {});
+            diff.once('exit', (code: number, signal: string) => {
+                // CVS diff command: 
+                //   return error code 0 means no difference
+                //   return error code 1 means having difference or command wrong 
+                resolve([0, content]);
+            });
+
+            diff.once('error', (err: Error) => {
+                reject(err);
+            });
+
+            diff.stdout
+            .on("data", (chunk: string | Buffer) => {
+                content += chunk.toString().replace(/[\r\n]/g, '\n');
+            });
+
+            diff.stderr
+            .on("data", (chunk: string | Buffer) => {
+            });
+        });
     }
     
     onGetStatus(): Promise<[number, string | undefined]> {

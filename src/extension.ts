@@ -9,6 +9,13 @@ import * as ps from 'process';
 import { NodeProvider, File } from './node';
 import { CVS } from './cvs'
 
+
+let selectedFile: string = '';
+
+export function setSelectedFile(f: string){
+    selectedFile = f;
+}
+
 // let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
 
 // this method is called when your extension is activated
@@ -93,14 +100,9 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('cvs-plugin.helloWorld', function () {
-        // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World from CVS-plugin!');
+    let disposable = vscode.commands.registerCommand('cvs-plugin.start', function () {
+        // TODO: check env here
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.started', true);
     });
 
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
@@ -108,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
             cancellable: false,
-            title: 'CVS-plugin updating'
+            title: 'CVS-plugin is working...'
         }, async progress => {
 
             // progress.report({ message: '0' });
@@ -148,7 +150,8 @@ export function activate(context: vscode.ExtensionContext) {
                     }
                     const nodeProvider = new NodeProvider(workspaceRoot);
                     nodeProvider.getData(files);
-                    vscode.window.registerTreeDataProvider('changed-files', nodeProvider);
+                    const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: nodeProvider, showCollapseAll: true });
+                    tree.onDidChangeSelection( e => selectedFile = e.selection[0].label);
                 }
                 else {
                     vscode.window.showErrorMessage('There are no changes.');
@@ -158,7 +161,46 @@ export function activate(context: vscode.ExtensionContext) {
         
     });
 
-    // let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
+    let cvsDiff = vscode.commands.registerCommand('cvs-plugin.diff', async function () {
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Window,
+            cancellable: false,
+            title: 'CVS-plugin is working...'
+        }, async progress => {
+            if(selectedFile) {
+                const cvs = new CVS(workspaceRoot, platform);
+                const file = path.join(workspaceRoot, selectedFile);
+                const res = await cvs.onGetDiff(selectedFile);
+                if (res[0]) {
+                    vscode.window.showErrorMessage('Unable to show file changes');
+                }
+                else {
+                    if (res[1]) {
+                        const newFile = vscode.Uri.parse('untitled:' + path.join(extRoot, selectedFile + '.tmp'));
+                        vscode.workspace.openTextDocument(newFile).then(document => {
+                            const edit = new vscode.WorkspaceEdit();
+                            edit.insert(newFile, new vscode.Position(0, 0), res[1]);
+                            return vscode.workspace.applyEdit(edit).then(success => {
+                                if (success) {
+                                    vscode.window.showTextDocument(document);
+                                } else {
+                                    vscode.window.showInformationMessage('Error!');
+                                }
+                            });
+                        });
+                    }
+                    else {
+                        vscode.window.showErrorMessage('Something wrong...');
+                    }
+                }
+            }
+            else {
+                vscode.window.showErrorMessage('Please select a file to diff.')
+            }
+        });
+    });
+
+    let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
         // const inputCmd :string | undefined = await vscode.window.showInputBox();
         // if(inputCmd)
         //     exeCommand(inputCmd);
@@ -181,13 +223,15 @@ export function activate(context: vscode.ExtensionContext) {
         //     }
         // }
         // WhiteBoard.show();
-    // });
+    });
 
     context.subscriptions.push(disposable);
     context.subscriptions.push(cvsStatus);
+    context.subscriptions.push(cvsDiff);
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
     console.log('Extension is deactivated');
+    vscode.commands.executeCommand('setContext', 'cvs-plugin.started', false);
 }
