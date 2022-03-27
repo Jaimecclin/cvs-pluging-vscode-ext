@@ -16,12 +16,24 @@
       "Other"
     ],
     "activationEvents": [
+      "onCommand:cvs-plugin.start",
       "onCommand:cvs-plugin.status",
+      "onCommand:cvs-plugin.diff",
       "onCommand:cvs-plugin.cmdTest"
     ],
     "main": "./out/extension.js",
     "contributes": {
+      "viewsWelcome": [
+        {
+          "view": "welcome",
+          "contents": "Click the below button to start this extension\n[Activate CVS-plugin](command:cvs-plugin.start)"
+        }
+      ],
       "commands": [
+        {
+          "command": "cvs-plugin.start",
+          "title": "start"
+        },
         {
           "command": "cvs-plugin.status",
           "title": "cvs status",
@@ -30,6 +42,11 @@
         {
           "command": "cvs-plugin.cmdTest",
           "title": "TestCommand"
+        },
+        {
+          "command": "cvs-plugin.diff",
+          "title": "cvs diff",
+          "icon": "resources/dark/diff.svg"
         }
       ],
       "viewsContainers": {
@@ -45,12 +62,14 @@
       "views": {
         "cvs-plugin": [
           {
-            "id": "changed-files",
-            "name": "Changed Files"
+            "id": "welcome",
+            "name": "Welcome",
+            "when": "cvs-plugin.started == false"
           },
           {
-            "id": "view-2",
-            "name": ""
+            "id": "changed-files",
+            "name": "Changed Files",
+            "when": "cvs-plugin.started == true"
           }
         ]
       },
@@ -62,7 +81,7 @@
             "group": "navigation"
           },
           {
-            "command": "cvs-plugin.cmdTest",
+            "command": "cvs-plugin.diff",
             "when": "view == changed-files",
             "group": "navigation"
           }
