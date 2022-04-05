@@ -6,17 +6,16 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ps from 'process';
 
-import { NodeProvider, File } from './node';
+import { NodeProvider, FolderProvider, File } from './node';
 import { CVS } from './cvs'
+import { logger } from './log'
 
+let selectedFile: vscode.TreeItem;
 
-let selectedFile: string = '';
-
-export function setSelectedFile(f: string){
+export function setSelectedFile(f: vscode.TreeItem){
     selectedFile = f;
+    logger.appendLine('setSelectedFile:'+ selectedFile.label)
 }
-
-// let WhiteBoard = vscode.window.createOutputChannel("WhiteBoard");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -27,57 +26,33 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "cvs-plugin" is now active!');
 
     let workspaceRoot :string | undefined = '';
+    let folders: File[] = [];
     let extRoot :string | undefined = context.extensionPath;
     let repoName: string = '';
     if (!vscode.workspace.workspaceFolders) {
         workspaceRoot = vscode.workspace.rootPath;
-        // WhiteBoard.appendLine('Not workspace');
+        logger.appendLine('Not workspace');
     }
     else { // TODO: Test
         if(vscode.workspace.workspaceFolders.length > 0) {
-            workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
-            
-            // for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
-            //     WhiteBoard.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
-            // }
+            // workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
+                logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
+            }
         }
         else {
             workspaceRoot = vscode.workspace.rootPath;
-            // WhiteBoard.appendLine('workspace else');
+            logger.appendLine('workspace else');
         }
     }
 
-    if(!workspaceRoot) {
+    if(!workspaceRoot && vscode.workspace.workspaceFolders.length === 0) {
         vscode.window.showErrorMessage('CVS-plugin cannot access correct folder.');
         return;
     }
-    
-    const cvsRepo = path.join(workspaceRoot, 'CVS', 'Repository');
-    try {
-        repoName = fs.readFileSync(cvsRepo, 'utf8');
-    } catch (err) {
-        vscode.window.showErrorMessage('CVS-plugin cannot find CVS/Repository in the workspace.');
-    }
-    // WhiteBoard.appendLine('repo name: ' + repoName);
-
-    // WhiteBoard.show();
 
     let platform = process.platform; //windows: win32, linux: linux, MacOS: darwin
     console.log("OS: ", process.platform);
-    
-    const debug = true;
-
-    function dumpLog(data: string) {
-        if(debug && workspaceRoot) {
-            const filePath = path.join(workspaceRoot, 'fileName.extension');
-            fs.appendFileSync(filePath, data, 'utf8');
-    
-            const openPath = vscode.Uri.file(filePath);
-            vscode.workspace.openTextDocument(openPath).then(doc => {
-                vscode.window.showTextDocument(doc);
-            });
-        }
-    }
 
     function exeCommand(command: string) {
         // Example: command = "powershell ls";
@@ -93,8 +68,6 @@ export function activate(context: vscode.ExtensionContext) {
                 console.log('error: ' + err);
                 result += stderr;
             }
-            
-            dumpLog(result);
 
             vscode.window.showInformationMessage("Success");
         });
@@ -103,6 +76,24 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('cvs-plugin.start', function () {
         // TODO: check env here
         vscode.commands.executeCommand('setContext', 'cvs-plugin.started', true);
+        const fp = new FolderProvider(workspaceRoot);
+        let files: File[] = [];
+        if(workspaceRoot){
+            const name = workspaceRoot;
+            const uri = workspaceRoot;
+            files.push(new File(name, uri, -1));
+        }
+        else {
+            for(let i=0; i<vscode.workspace.workspaceFolders.length; i++) {
+                // logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
+                const name = vscode.workspace.workspaceFolders[i].name;
+                const uri = vscode.workspace.workspaceFolders[i].uri;
+                files.push(new File(name, uri, -1));
+            }
+        }
+        fp.setData(files);
+        const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
+        tree.onDidChangeSelection( e => setSelectedFile(e.selection[0]) );
     });
 
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
@@ -149,7 +140,7 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                     }
                     const nodeProvider = new NodeProvider(workspaceRoot);
-                    nodeProvider.getData(files);
+                    nodeProvider.setData(files);
                     const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: nodeProvider, showCollapseAll: true });
                     tree.onDidChangeSelection( e => selectedFile = e.selection[0].label);
                 }

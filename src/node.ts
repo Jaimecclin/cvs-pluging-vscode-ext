@@ -2,14 +2,63 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { logger } from './log'
+
 export class File {
 
     constructor(
         public readonly name: string,
-        public readonly path: string,
-        public type: number // 0: modified, 1: updated
+        public readonly uri: vscode.Uri,
+        public type: number // 1-1: folder, 0: modified, 1: updated
     ) {}
 
+}
+
+export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
+
+    private _onDidChangeTreeData: vscode.EventEmitter<FolderItem | undefined | void> = new vscode.EventEmitter<FolderItem | undefined | void>();
+    readonly onDidChangeTreeData: vscode.Event<FolderItem | undefined | void> = this._onDidChangeTreeData.event;
+    private data: File[] = [];
+    constructor(private workspaceRoot: string | undefined) {
+    }
+
+    refresh(): void {
+        this._onDidChangeTreeData.fire();
+    }
+
+    getTreeItem(element: FolderItem): vscode.TreeItem {
+        return element;
+    }
+
+    getChildren(element?: FolderItem): Thenable<FolderItem[]> {
+        // Only present the root level
+        if(element) {
+            return Promise.resolve([]);
+        }
+        // if (!this.workspaceRoot) {
+        //     vscode.window.showInformationMessage('empty workspace');
+        //     return Promise.resolve([]);
+        // }
+        let shownItems: FolderItem[] = [];
+        for(let i=0; i<this.data.length; i++) {
+            shownItems.push(new FolderItem(this.data[i].name, this.data[i].uri, vscode.TreeItemCollapsibleState.Collapsed));
+        }
+        return Promise.resolve(shownItems);
+    }
+
+    setData(files: File[]) {
+        this.data = files;
+    }
+
+    private pathExists(p: string): boolean {
+        try {
+            fs.accessSync(p);
+        } catch (err) {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
@@ -33,10 +82,10 @@ export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
         if(element) {
             return Promise.resolve([]);
         }
-        if (!this.workspaceRoot) {
-            vscode.window.showInformationMessage('No dependency in empty workspace');
-            return Promise.resolve([]);
-        }
+        // if (!this.workspaceRoot) {
+        //     vscode.window.showInformationMessage('No dependency in empty workspace');
+        //     return Promise.resolve([]);
+        // }
         let shownItems: ChangedItem[] = [];
         for(let i=0; i<this.data.length; i++) {
             if(this.data[i].type === 0)
@@ -51,7 +100,7 @@ export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
         return Promise.resolve(shownItems);
     }
 
-    getData(files: File[]) {
+    setData(files: File[]) {
         this.data = files;
     }
 
@@ -66,18 +115,18 @@ export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
     }
 }
 
-export class Dependency extends vscode.TreeItem {
+export class FolderItem extends vscode.TreeItem {
 
     constructor(
         public readonly label: string,
-        private readonly version: string,
+        public readonly uri: vscode.Uri,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly command?: vscode.Command
     ) {
         super(label, collapsibleState);
 
-        this.tooltip = `${this.label}-${this.version}`;
-        this.description = this.version;
+        // this.tooltip = `${this.label}-${this.version}`;
+        // this.description = this.version;
     }
 
     iconPath = {
@@ -85,7 +134,13 @@ export class Dependency extends vscode.TreeItem {
         dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
     };
 
-    contextValue = 'dependency';
+    contextValue = 'folder_item';
+    cvsRepo = path.join(this.uri.fsPath, 'CVS', 'Repository');
+    // try {
+    //     repoName = fs.readFileSync(cvsRepo, 'utf8');
+    // } catch (err) {
+    //     vscode.window.showErrorMessage('CVS-plugin cannot find CVS/Repository in the workspace.');
+    // }
 }
 
 export class ChangedItem extends vscode.TreeItem {
