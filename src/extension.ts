@@ -142,7 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
                     const nodeProvider = new NodeProvider(workspaceRoot);
                     nodeProvider.setData(files);
                     const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: nodeProvider, showCollapseAll: true });
-                    tree.onDidChangeSelection( e => selectedFile = e.selection[0].label);
+                    tree.onDidChangeSelection( e => selectedFile = e.selection[0]);
                 }
                 else {
                     vscode.window.showErrorMessage('There are no changes.');
