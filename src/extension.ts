@@ -6,13 +6,13 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ps from 'process';
 
-import { NodeProvider, FolderProvider, FolderItem, ChangedItem } from './node';
+import * as node from './node';
 import { CVS } from './cvs'
 import { logger } from './log'
 
-let selectedFile: vscode.TreeItem;
+let selectedFile: node.FolderItem;
 
-export function setSelectedFile(f: vscode.TreeItem){
+export function setSelectedFile(f: node.FolderItem){
     selectedFile = f;
     logger.appendLine('setSelectedFile:'+ selectedFile.label)
 }
@@ -28,6 +28,9 @@ export function activate(context: vscode.ExtensionContext) {
     let workspaceRoot :string | undefined = '';
     let extRoot :string | undefined = context.extensionPath;
     let repoName: string = '';
+    const fp = new node.FolderProvider(workspaceRoot);
+    let tree: vscode.TreeView<vscode.TreeItem>; 
+
     if (!vscode.workspace.workspaceFolders) {
         workspaceRoot = vscode.workspace.rootPath;
         logger.appendLine('Not workspace');
@@ -75,27 +78,27 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('cvs-plugin.start', function () {
         // TODO: check env here
         vscode.commands.executeCommand('setContext', 'cvs-plugin.started', true);
-        const fp = new FolderProvider(workspaceRoot);
-        let folders: FolderItem[] = [];
+        
+        let folders: node.FolderItem[] = [];
         if(workspaceRoot){
             const name = workspaceRoot;
             const uri = vscode.Uri.parse(workspaceRoot);
-            files.push(new File(name, uri, -1));
+            folders.push(new node.FolderItem(name, uri));
         }
         else {
             for(let i=0; i<vscode.workspace.workspaceFolders.length; i++) {
                 // logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
                 const name = vscode.workspace.workspaceFolders[i].name;
                 const uri = vscode.workspace.workspaceFolders[i].uri;
-                folders.push(new FolderItem(name, uri));
+                folders.push(new node.FolderItem(name, uri));
             }
         }
         // TODO: Remove the test code
-        // folders[0].born(new ChangedItem('aaa', vscode.Uri.parse(path.join('aaa'))));
+        // folders[0].born(new node.ChangedItem('aaa', vscode.Uri.parse(path.join('aaa'))));
         // files[0].born(new File('bbb', vscode.Uri.parse(path.join('bbb')), 1));
         // files[0].born(new File('ccc', vscode.Uri.parse(path.join('ccc')), 2));
         fp.setData(folders);
-        const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
+        tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
         tree.onDidChangeSelection( e => setSelectedFile(e.selection[0]) );
     });
 
@@ -104,8 +107,10 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage('No selected CVS folder');
             return;
         }
-        return;
-        // TODO: Fix the following code
+        if(!(selectedFile instanceof node.FolderItem)) {
+            vscode.window.showErrorMessage('No selected CVS folder');
+            return;
+        }
 
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
@@ -125,29 +130,28 @@ export function activate(context: vscode.ExtensionContext) {
                 if (res[1]) {
                     const regexp = /(?<status>[UMC?]) (?<filename>.+)/;
                     const splited = res[1].split('\n');
-                    let files: File[] = [];
+                    selectedFile.clear();
                     for(let i=0; i<splited.length; i++){
                         const matched = regexp.exec(splited[i]);
+                        
                         if(matched != null && matched.groups){
-                            let status = 0;
+                            let file: node.FileLabel;
                             const filename = matched.groups.filename.trim();
+                            const uri = vscode.Uri.parse(filename);
                             if(matched.groups.status === 'M')
-                                status = 0;
+                                file = new node.ChangedItem(filename, uri);
                             else if(matched.groups.status === '?')
-                                status = 1;
+                                file = new node.QuestionableItem(filename, uri);
                             else if(matched.groups.status === 'U')
-                                status = 2;
+                                file = new node.ChangedItem(filename, uri);
                             else if(matched.groups.status === 'C')
-                                status = 3;
+                                file = new node.ConflictItem(filename, uri);
                             else
                                 continue;
-                            files.push(new File(filename, filename, status));
+                            selectedFile.born(file);
                         }
                     }
-                    const nodeProvider = new NodeProvider(workspaceRoot);
-                    nodeProvider.setData(files);
-                    const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: nodeProvider, showCollapseAll: true });
-                    tree.onDidChangeSelection( e => selectedFile = e.selection[0]);
+                    fp.refresh();
                 }
                 else {
                     vscode.window.showErrorMessage('There are no changes.');

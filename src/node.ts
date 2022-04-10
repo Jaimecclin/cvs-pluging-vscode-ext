@@ -68,59 +68,6 @@ export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
     }
 }
 
-export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
-
-    private _onDidChangeTreeData: vscode.EventEmitter<ChangedItem | undefined | void> = new vscode.EventEmitter<ChangedItem | undefined | void>();
-    readonly onDidChangeTreeData: vscode.Event<ChangedItem | undefined | void> = this._onDidChangeTreeData.event;
-    private data: File[] = [];
-    constructor(private workspaceRoot: string | undefined) {
-    }
-
-    refresh(): void {
-        this._onDidChangeTreeData.fire();
-    }
-
-    getTreeItem(element: ChangedItem): vscode.TreeItem {
-        return element;
-    }
-
-    getChildren(element?: ChangedItem): Thenable<ChangedItem[]> {
-        // Only present the root level
-        if(element) {
-            return Promise.resolve([]);
-        }
-        // if (!this.workspaceRoot) {
-        //     vscode.window.showInformationMessage('No dependency in empty workspace');
-        //     return Promise.resolve([]);
-        // }
-        let shownItems: ChangedItem[] = [];
-        for(let i=0; i<this.data.length; i++) {
-            if(this.data[i].type === 0)
-                shownItems.push(new ChangedItem(this.data[i].name, vscode.TreeItemCollapsibleState.Collapsed));
-            else if(this.data[i].type === 1)
-                shownItems.push(new QuestionableItem(this.data[i].name, vscode.TreeItemCollapsibleState.Collapsed));
-            else if(this.data[i].type === 2)
-                shownItems.push(new UpdatedItem(this.data[i].name, vscode.TreeItemCollapsibleState.Collapsed));
-            else if(this.data[i].type === 3)
-                shownItems.push(new ConflictItem(this.data[i].name, vscode.TreeItemCollapsibleState.Collapsed));
-        }
-        return Promise.resolve(shownItems);
-    }
-
-    setData(files: File[]) {
-        this.data = files;
-    }
-
-    private pathExists(p: string): boolean {
-        try {
-            fs.accessSync(p);
-        } catch (err) {
-            return false;
-        }
-
-        return true;
-    }
-}
 
 export class FolderItem extends vscode.TreeItem {
 
@@ -154,12 +101,16 @@ export class FolderItem extends vscode.TreeItem {
         this.children.push(item);
     }
 
+    clear() {
+        this.children = [];
+    }
+
     getChildren(): vscode.TreeItem[] {
         return this.children;
     }
 }
 
-class FileLabel implements vscode.TreeItemLabel {
+export class FileLabel implements vscode.TreeItemLabel {
 
     constructor(
         public readonly label: string,
