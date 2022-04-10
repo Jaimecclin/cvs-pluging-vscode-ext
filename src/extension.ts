@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
         let files: File[] = [];
         if(workspaceRoot){
             const name = workspaceRoot;
-            const uri = workspaceRoot;
+            const uri = vscode.Uri.parse(workspaceRoot);
             files.push(new File(name, uri, -1));
         }
         else {
@@ -91,12 +91,22 @@ export function activate(context: vscode.ExtensionContext) {
                 files.push(new File(name, uri, -1));
             }
         }
+        // TODO: Remove the test code
+        // files[0].born(new File('aaa', vscode.Uri.parse(path.join('aaa')), 0));
+        // files[0].born(new File('bbb', vscode.Uri.parse(path.join('bbb')), 1));
+        // files[0].born(new File('ccc', vscode.Uri.parse(path.join('ccc')), 2));
         fp.setData(files);
         const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
         tree.onDidChangeSelection( e => setSelectedFile(e.selection[0]) );
     });
 
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
+        if(!selectedFile){
+            vscode.window.showErrorMessage('No selected CVS folder');
+            return;
+        }
+        return;
+        // TODO: Fix the following code
 
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
@@ -105,12 +115,8 @@ export function activate(context: vscode.ExtensionContext) {
         }, async progress => {
 
             // progress.report({ message: '0' });
-            if(!workspaceRoot) {
-                vscode.window.showErrorMessage('No set cvs root path');
-                return;
-            }
 
-            const cvs = new CVS(workspaceRoot, platform);
+            const cvs = new CVS(selectedFile.uri.fsPath, platform);
             const res = await cvs.onGetStatus();
 
             if (res[0]) {

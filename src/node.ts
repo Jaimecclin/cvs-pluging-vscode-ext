@@ -5,6 +5,7 @@ import * as path from 'path';
 import { logger } from './log'
 
 export class File {
+    children: File[] = [];
 
     constructor(
         public readonly name: string,
@@ -12,6 +13,10 @@ export class File {
         public type: number // 1-1: folder, 0: modified, 1: updated
     ) {}
 
+    born(f: File) {
+        this.children.push(f);
+    }
+    
 }
 
 export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
@@ -30,20 +35,45 @@ export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
         return element;
     }
 
-    getChildren(element?: FolderItem): Thenable<FolderItem[]> {
+    getChildren(element?: FolderItem): Thenable<vscode.TreeItem[]> {
         // Only present the root level
-        if(element) {
-            return Promise.resolve([]);
-        }
+        // if(element) {
+        //     return Promise.resolve([]);
+        // }
         // if (!this.workspaceRoot) {
         //     vscode.window.showInformationMessage('empty workspace');
         //     return Promise.resolve([]);
         // }
-        let shownItems: FolderItem[] = [];
-        for(let i=0; i<this.data.length; i++) {
-            shownItems.push(new FolderItem(this.data[i].name, this.data[i].uri, vscode.TreeItemCollapsibleState.Collapsed));
+        if(!element){
+            // Build
+            let shownFolders: FolderItem[] = [];
+            for(let i=0; i<this.data.length; i++) {
+                const f = new FolderItem(this.data[i].name, this.data[i].uri, vscode.TreeItemCollapsibleState.Collapsed);
+                for(let j=0; j<this.data[i].children.length; j++) {
+                    let label: FileLabel;
+                    const type = this.data[i].children[j].type;
+                    const name = this.data[i].children[j].name;
+                    const uri = this.data[i].children[j].uri;
+                    if(type === 0)
+                        label = new ChangedItem(name, uri);
+                    else if(type === 1)
+                        label = new QuestionableItem(name, uri);
+                    else if(type === 2)
+                        label = new UpdatedItem(name, uri);
+                    else if(type === 3)
+                        label = new ConflictItem(name, uri);
+                    else
+                        continue;
+                    f.born(label);
+                }
+                shownFolders.push(f);
+            }
+            return Promise.resolve(shownFolders);
         }
-        return Promise.resolve(shownItems);
+        else {
+            logger.appendLine('321');
+            return Promise.resolve(element.children);
+        }
     }
 
     setData(files: File[]) {
@@ -117,6 +147,7 @@ export class NodeProvider implements vscode.TreeDataProvider<ChangedItem> {
 
 export class FolderItem extends vscode.TreeItem {
 
+    children: vscode.TreeItem[] = [];
     constructor(
         public readonly label: string,
         public readonly uri: vscode.Uri,
@@ -141,17 +172,27 @@ export class FolderItem extends vscode.TreeItem {
     // } catch (err) {
     //     vscode.window.showErrorMessage('CVS-plugin cannot find CVS/Repository in the workspace.');
     // }
+
+    born(item: vscode.TreeItem) {
+        this.children.push(item);
+    }
 }
 
-export class ChangedItem extends vscode.TreeItem {
+class FileLabel implements vscode.TreeItemLabel {
 
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
-    ) {
-        super(label, collapsibleState);
+        public readonly uri: vscode.Uri
+    ){}
+}
 
+export class ChangedItem extends FileLabel {
+
+    constructor(
+        public readonly label: string,
+        public readonly uri: vscode.Uri
+    ) {
+        super(label, uri);
         // this.tooltip = `${this.label}-${this.version}`;
         // this.description = this.version;
     }
@@ -164,14 +205,13 @@ export class ChangedItem extends vscode.TreeItem {
     contextValue = 'changed';
 }
 
-export class UpdatedItem extends vscode.TreeItem {
+export class UpdatedItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public readonly uri: vscode.Uri
     ) {
-        super(label, collapsibleState);
+        super(label, uri);
     }
 
     iconPath = {
@@ -183,14 +223,13 @@ export class UpdatedItem extends vscode.TreeItem {
 }
 
 
-export class QuestionableItem extends vscode.TreeItem {
+export class QuestionableItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public readonly uri: vscode.Uri
     ) {
-        super(label, collapsibleState);
+        super(label, uri);
     }
 
     iconPath = {
@@ -201,14 +240,13 @@ export class QuestionableItem extends vscode.TreeItem {
     contextValue = 'questionable';
 }
 
-export class ConflictItem extends vscode.TreeItem {
+export class ConflictItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public readonly uri: vscode.Uri
     ) {
-        super(label, collapsibleState);
+        super(label, uri);
     }
 
     iconPath = {
