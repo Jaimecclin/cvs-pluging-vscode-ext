@@ -10,9 +10,9 @@ import * as node from './node';
 import { CVS } from './cvs'
 import { logger } from './log'
 
-let selectedFile: node.FolderItem;
+let selectedFile: node.FileItem;
 
-export function setSelectedFile(f: node.FolderItem){
+export function setSelectedFile(f: node.FileItem){
     selectedFile = f;
     logger.appendLine('setSelectedFile:'+ selectedFile.label)
 }
@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "cvs-plugin" is now active!');
 
     let workspaceRoot :string | undefined = '';
-    let extRoot :string | undefined = context.extensionPath;
+    let extRoot :string = context.extensionPath;
     let repoName: string = '';
     const fp = new node.FolderProvider(workspaceRoot);
     let tree: vscode.TreeView<vscode.TreeItem>; 
@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
-    if(!workspaceRoot && vscode.workspace.workspaceFolders.length === 0) {
+    if(!workspaceRoot && vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length === 0) {
         vscode.window.showErrorMessage('CVS-plugin cannot access correct folder.');
         return;
     }
@@ -79,19 +79,19 @@ export function activate(context: vscode.ExtensionContext) {
         // TODO: check env here
         vscode.commands.executeCommand('setContext', 'cvs-plugin.started', true);
         
-        let folders: node.FolderItem[] = [];
+        let folders: node.FileItem[] = [];
         if(workspaceRoot){
             const name = workspaceRoot;
             const uri = vscode.Uri.parse(workspaceRoot);
             folders.push(new node.FolderItem(name, uri));
         }
         else {
-            for(let i=0; i<vscode.workspace.workspaceFolders.length; i++) {
-                // logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
-                const name = vscode.workspace.workspaceFolders[i].name;
-                const uri = vscode.workspace.workspaceFolders[i].uri;
-                folders.push(new node.FolderItem(name, uri));
-            }
+            if(vscode.workspace.workspaceFolders)
+                for(let i=0; i<vscode.workspace.workspaceFolders.length; i++) {
+                    const name = vscode.workspace.workspaceFolders[i].name;
+                    const uri = vscode.workspace.workspaceFolders[i].uri;
+                    folders.push(new node.FolderItem(name, uri));
+                }
         }
         // TODO: Remove the test code
         // folders[0].born(new node.ChangedItem('aaa', vscode.Uri.parse(path.join('aaa'))));
@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
         // files[0].born(new File('ccc', vscode.Uri.parse(path.join('ccc')), 2));
         fp.setData(folders);
         tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
-        tree.onDidChangeSelection( e => setSelectedFile(e.selection[0]) );
+        tree.onDidChangeSelection( e => setSelectedFile(<node.FileItem>(e.selection[0])) );
     });
 
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
@@ -120,9 +120,10 @@ export function activate(context: vscode.ExtensionContext) {
 
             // progress.report({ message: '0' });
 
-            const cvs = new CVS(selectedFile.uri.fsPath, platform);
+            const selected: node.FolderItem = selectedFile; 
+            const cvs = new CVS(selected.uri.fsPath, platform);
             const res = await cvs.onGetStatus();
-
+            
             if (res[0]) {
                 vscode.window.showErrorMessage('Unable to show changes in local copy of repository.');
             }
@@ -130,25 +131,25 @@ export function activate(context: vscode.ExtensionContext) {
                 if (res[1]) {
                     const regexp = /(?<status>[UMC?]) (?<filename>.+)/;
                     const splited = res[1].split('\n');
-                    selectedFile.clear();
+                    selected.clear();
                     for(let i=0; i<splited.length; i++){
                         const matched = regexp.exec(splited[i]);
                         
                         if(matched != null && matched.groups){
-                            let file: node.FileLabel;
+                            let file: node.FileItem;
                             const filename = matched.groups.filename.trim();
                             const uri = vscode.Uri.parse(filename);
                             if(matched.groups.status === 'M')
-                                file = new node.ChangedItem(filename, uri, selectedFile);
+                                file = new node.ChangedItem(filename, uri, selected);
                             else if(matched.groups.status === '?')
-                                file = new node.QuestionableItem(filename, uri, selectedFile);
+                                file = new node.QuestionableItem(filename, uri, selected);
                             else if(matched.groups.status === 'U')
-                                file = new node.UpdatedItem(filename, uri, selectedFile);
+                                file = new node.UpdatedItem(filename, uri, selected);
                             else if(matched.groups.status === 'C')
-                                file = new node.ConflictItem(filename, uri, selectedFile);
+                                file = new node.ConflictItem(filename, uri, selected);
                             else
                                 continue;
-                            selectedFile.born(file);
+                            selected.born(file);
                         }
                     }
                     fp.refresh();
@@ -166,7 +167,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage('Please select a file to diff.');
             return;
         }
-        if(!(selectedFile instanceof node.FileLabel)) {
+        if(!(selectedFile instanceof node.FileItem)) {
             vscode.window.showErrorMessage('Please select a file to diff.');
             return;
         }
@@ -175,9 +176,14 @@ export function activate(context: vscode.ExtensionContext) {
             cancellable: false,
             title: 'CVS-plugin is working...'
         }, async progress => {
-            const cvs = new CVS(selectedFile.parent.uri.fsPath, platform);
+            const selected: node.FileItem = selectedFile;
+            if(!selected.parent) {
+                vscode.window.showErrorMessage('Something wrong...');
+                return;
+            }
+            const cvs = new CVS(selected.parent.uri.fsPath, platform);
             // We need relative path here, so use label for now
-            const res = await cvs.onGetDiff(selectedFile.label);
+            const res = await cvs.onGetDiff(selected.label);
             if (res[0]) {
                 vscode.window.showErrorMessage('Unable to show file changes');
             }
@@ -186,6 +192,8 @@ export function activate(context: vscode.ExtensionContext) {
                     const newFile = vscode.Uri.parse('Untitled:' + path.join(extRoot, selectedFile.label + '.diff'));
                     vscode.workspace.openTextDocument(newFile).then(document => {
                         const edit = new vscode.WorkspaceEdit();
+                        if(!res[1])
+                            return;
                         edit.insert(newFile, new vscode.Position(0, 0), res[1]);
                         return vscode.workspace.applyEdit(edit).then(success => {
                             if (success) {
