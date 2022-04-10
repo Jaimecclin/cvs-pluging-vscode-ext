@@ -2,8 +2,25 @@
 
 This extension is to help people stuck with poor and out-of-date version control software `cvs`. You can easily use it like a current version control system.
 
+**Important**
 
-# Status 
+This extension supports **multi-root** workspaces. Please open your each CVS repository at the top of workspace, like this
+
+```
+Workspace
+   |
+   |----- CVS repo 1
+   |           |
+   |           |----- file1
+   |           |
+   |           |----- file2
+   |----- CVS repo 2
+               |
+               |----- file1
+               |
+               |----- file2
+```
+
 
 ### Tested environment
 
@@ -12,25 +29,44 @@ This extension is to help people stuck with poor and out-of-date version control
 
 # Functions
 
+### Activate this extension
+
+1. Click the button to activate this extension
+
+    ![welcome](/resources/readme/welcome.png "Welcome page")
+
+2. Active! Show all folders in the workspace.
+   
+   ![actived](/resources/readme/actived.png "Active page")
+
 ### cvs status
 
-Get changed file list from current repository.
+Get all file status from the selected folder.
 
-1. Press the refresh button
+1. Select the folder you want to check and click the status button.
 
-    ![refresh-demo](/resources/readme/refresh-demo.png "Refresh Demo")
+    ![refresh-1](/resources/readme/refresh-1.png "Refresh 1")
 
 2. Wait
 
     ![refreshing-demo](/resources/readme/refreshing-demo.png "Refreshing Demo")
 
-3. See the modified files
+3. See the file status
 
-    ![refreshed-demo](/resources/readme/refreshed-demo.png "Refreshed Demo")
+    ![refreshed-2](/resources/readme/refresh-2.png "Refresh 2")
+
+    Status Note
+
+        * M : Modified file
+        * ? : Questionable file
+        * U : Updated file (in server)
+        * C : Conflict file
 
 ### cvs diff file
 
-    *Under construction*
+1. Select the file you want to compare and click the diff button.
+
+    ![diff](/resources/readme/diff.png "Diff")
 
 ### cvs update
 
