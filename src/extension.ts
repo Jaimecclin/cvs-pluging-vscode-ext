@@ -143,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
                             else if(matched.groups.status === '?')
                                 file = new node.QuestionableItem(filename, uri, selectedFile);
                             else if(matched.groups.status === 'U')
-                                file = new node.ChangedItem(filename, uri, selectedFile);
+                                file = new node.UpdatedItem(filename, uri, selectedFile);
                             else if(matched.groups.status === 'C')
                                 file = new node.ConflictItem(filename, uri, selectedFile);
                             else
