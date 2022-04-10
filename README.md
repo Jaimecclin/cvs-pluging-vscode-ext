@@ -57,10 +57,10 @@ Get all file status from the selected folder.
 
     Status Note
 
-        * M : Modified file
-        * ? : Questionable file
-        * U : Updated file (in server)
-        * C : Conflict file
+    * M : Modified file
+    * ? : Questionable file
+    * U : Updated file (in server)
+    * C : Conflict file
 
 ### cvs diff file
 
