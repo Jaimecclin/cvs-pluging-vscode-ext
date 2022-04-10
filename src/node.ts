@@ -23,7 +23,7 @@ export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
 
     private _onDidChangeTreeData: vscode.EventEmitter<FolderItem | undefined | void> = new vscode.EventEmitter<FolderItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<FolderItem | undefined | void> = this._onDidChangeTreeData.event;
-    private data: File[] = [];
+    private data: FolderItem[] = [];
     constructor(private workspaceRoot: string | undefined) {
     }
 
@@ -45,30 +45,7 @@ export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
         //     return Promise.resolve([]);
         // }
         if(!element){
-            // Build
-            let shownFolders: FolderItem[] = [];
-            for(let i=0; i<this.data.length; i++) {
-                const f = new FolderItem(this.data[i].name, this.data[i].uri, vscode.TreeItemCollapsibleState.Collapsed);
-                for(let j=0; j<this.data[i].children.length; j++) {
-                    let label: FileLabel;
-                    const type = this.data[i].children[j].type;
-                    const name = this.data[i].children[j].name;
-                    const uri = this.data[i].children[j].uri;
-                    if(type === 0)
-                        label = new ChangedItem(name, uri);
-                    else if(type === 1)
-                        label = new QuestionableItem(name, uri);
-                    else if(type === 2)
-                        label = new UpdatedItem(name, uri);
-                    else if(type === 3)
-                        label = new ConflictItem(name, uri);
-                    else
-                        continue;
-                    f.born(label);
-                }
-                shownFolders.push(f);
-            }
-            return Promise.resolve(shownFolders);
+            return Promise.resolve(this.data);
         }
         else {
             logger.appendLine('321');
@@ -76,8 +53,8 @@ export class FolderProvider implements vscode.TreeDataProvider<FolderItem> {
         }
     }
 
-    setData(files: File[]) {
-        this.data = files;
+    setData(folders: FolderItem[]) {
+        this.data = folders;
     }
 
     private pathExists(p: string): boolean {
@@ -151,7 +128,7 @@ export class FolderItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly uri: vscode.Uri,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed,
         public readonly command?: vscode.Command
     ) {
         super(label, collapsibleState);
@@ -175,6 +152,10 @@ export class FolderItem extends vscode.TreeItem {
 
     born(item: vscode.TreeItem) {
         this.children.push(item);
+    }
+
+    getChildren(): vscode.TreeItem[] {
+        return this.children;
     }
 }
 

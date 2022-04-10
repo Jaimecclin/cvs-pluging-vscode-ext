@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ps from 'process';
 
-import { NodeProvider, FolderProvider, File } from './node';
+import { NodeProvider, FolderProvider, FolderItem, ChangedItem } from './node';
 import { CVS } from './cvs'
 import { logger } from './log'
 
@@ -26,7 +26,6 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "cvs-plugin" is now active!');
 
     let workspaceRoot :string | undefined = '';
-    let folders: File[] = [];
     let extRoot :string | undefined = context.extensionPath;
     let repoName: string = '';
     if (!vscode.workspace.workspaceFolders) {
@@ -77,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
         // TODO: check env here
         vscode.commands.executeCommand('setContext', 'cvs-plugin.started', true);
         const fp = new FolderProvider(workspaceRoot);
-        let files: File[] = [];
+        let folders: FolderItem[] = [];
         if(workspaceRoot){
             const name = workspaceRoot;
             const uri = vscode.Uri.parse(workspaceRoot);
@@ -88,14 +87,14 @@ export function activate(context: vscode.ExtensionContext) {
                 // logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
                 const name = vscode.workspace.workspaceFolders[i].name;
                 const uri = vscode.workspace.workspaceFolders[i].uri;
-                files.push(new File(name, uri, -1));
+                folders.push(new FolderItem(name, uri));
             }
         }
         // TODO: Remove the test code
-        // files[0].born(new File('aaa', vscode.Uri.parse(path.join('aaa')), 0));
+        // folders[0].born(new ChangedItem('aaa', vscode.Uri.parse(path.join('aaa'))));
         // files[0].born(new File('bbb', vscode.Uri.parse(path.join('bbb')), 1));
         // files[0].born(new File('ccc', vscode.Uri.parse(path.join('ccc')), 2));
-        fp.setData(files);
+        fp.setData(folders);
         const tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
         tree.onDidChangeSelection( e => setSelectedFile(e.selection[0]) );
     });
