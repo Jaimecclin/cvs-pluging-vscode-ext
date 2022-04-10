@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import {spawn} from 'child_process';
 
-let WhiteBoard2 = vscode.window.createOutputChannel("WhiteBoard2");
+import { logger } from './log'
 
 export class CVS {
 

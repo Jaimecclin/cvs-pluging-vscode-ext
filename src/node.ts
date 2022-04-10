@@ -111,20 +111,23 @@ export class FolderItem extends vscode.TreeItem {
 }
 
 export class FileLabel implements vscode.TreeItemLabel {
-
     constructor(
         public readonly label: string,
-        public readonly uri: vscode.Uri
-    ){}
+        public readonly uri: vscode.Uri,
+        public readonly parent: FolderItem
+    ){
+        this.parent = parent;
+    }
 }
 
 export class ChangedItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly uri: vscode.Uri
+        public readonly uri: vscode.Uri,
+        public readonly parent: FolderItem
     ) {
-        super(label, uri);
+        super(label, uri, parent);
         // this.tooltip = `${this.label}-${this.version}`;
         // this.description = this.version;
     }
@@ -141,9 +144,10 @@ export class UpdatedItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly uri: vscode.Uri
+        public readonly uri: vscode.Uri,
+        public readonly parent: FolderItem
     ) {
-        super(label, uri);
+        super(label, uri, parent);
     }
 
     iconPath = {
@@ -159,9 +163,10 @@ export class QuestionableItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly uri: vscode.Uri
+        public readonly uri: vscode.Uri,
+        public readonly parent: FolderItem
     ) {
-        super(label, uri);
+        super(label, uri, parent);
     }
 
     iconPath = {
@@ -176,9 +181,10 @@ export class ConflictItem extends FileLabel {
 
     constructor(
         public readonly label: string,
-        public readonly uri: vscode.Uri
+        public readonly uri: vscode.Uri,
+        public readonly parent: FolderItem
     ) {
-        super(label, uri);
+        super(label, uri, parent);
     }
 
     iconPath = {

@@ -139,13 +139,13 @@ export function activate(context: vscode.ExtensionContext) {
                             const filename = matched.groups.filename.trim();
                             const uri = vscode.Uri.parse(filename);
                             if(matched.groups.status === 'M')
-                                file = new node.ChangedItem(filename, uri);
+                                file = new node.ChangedItem(filename, uri, selectedFile);
                             else if(matched.groups.status === '?')
-                                file = new node.QuestionableItem(filename, uri);
+                                file = new node.QuestionableItem(filename, uri, selectedFile);
                             else if(matched.groups.status === 'U')
-                                file = new node.ChangedItem(filename, uri);
+                                file = new node.ChangedItem(filename, uri, selectedFile);
                             else if(matched.groups.status === 'C')
-                                file = new node.ConflictItem(filename, uri);
+                                file = new node.ConflictItem(filename, uri, selectedFile);
                             else
                                 continue;
                             selectedFile.born(file);
@@ -162,40 +162,43 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let cvsDiff = vscode.commands.registerCommand('cvs-plugin.diff', async function () {
+        if(!selectedFile){
+            vscode.window.showErrorMessage('Please select a file to diff.');
+            return;
+        }
+        if(!(selectedFile instanceof node.FileLabel)) {
+            vscode.window.showErrorMessage('Please select a file to diff.');
+            return;
+        }
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
             cancellable: false,
             title: 'CVS-plugin is working...'
         }, async progress => {
-            if(selectedFile) {
-                const cvs = new CVS(workspaceRoot, platform);
-                const file = path.join(workspaceRoot, selectedFile);
-                const res = await cvs.onGetDiff(selectedFile);
-                if (res[0]) {
-                    vscode.window.showErrorMessage('Unable to show file changes');
-                }
-                else {
-                    if (res[1]) {
-                        const newFile = vscode.Uri.parse('untitled:' + path.join(extRoot, selectedFile + '.tmp'));
-                        vscode.workspace.openTextDocument(newFile).then(document => {
-                            const edit = new vscode.WorkspaceEdit();
-                            edit.insert(newFile, new vscode.Position(0, 0), res[1]);
-                            return vscode.workspace.applyEdit(edit).then(success => {
-                                if (success) {
-                                    vscode.window.showTextDocument(document);
-                                } else {
-                                    vscode.window.showInformationMessage('Error!');
-                                }
-                            });
-                        });
-                    }
-                    else {
-                        vscode.window.showErrorMessage('Something wrong...');
-                    }
-                }
+            const cvs = new CVS(selectedFile.parent.uri.fsPath, platform);
+            // We need relative path here, so use label for now
+            const res = await cvs.onGetDiff(selectedFile.label);
+            if (res[0]) {
+                vscode.window.showErrorMessage('Unable to show file changes');
             }
             else {
-                vscode.window.showErrorMessage('Please select a file to diff.')
+                if (res[1]) {
+                    const newFile = vscode.Uri.parse('Untitled:' + path.join(extRoot, selectedFile.label + '.diff'));
+                    vscode.workspace.openTextDocument(newFile).then(document => {
+                        const edit = new vscode.WorkspaceEdit();
+                        edit.insert(newFile, new vscode.Position(0, 0), res[1]);
+                        return vscode.workspace.applyEdit(edit).then(success => {
+                            if (success) {
+                                vscode.window.showTextDocument(document);
+                            } else {
+                                vscode.window.showInformationMessage('Error!');
+                            }
+                        });
+                    });
+                }
+                else {
+                    vscode.window.showErrorMessage('Something wrong...');
+                }
             }
         });
     });
