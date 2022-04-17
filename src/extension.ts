@@ -27,7 +27,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     let workspaceRoot :string | undefined = '';
     let extRoot :string = context.extensionPath;
-    let repoName: string = '';
     const fp = new node.FolderProvider(workspaceRoot);
     let tree: vscode.TreeView<vscode.TreeItem>; 
 
@@ -105,7 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
             for( const file of files ) {
                 if(file === 'readme.log')
                     continue;
-                fs.rm(file, function (err) {
+                fs.rm(path.join(extRoot, 'temporary', file), function (err) {
                     if (err) {
                         throw err;
                     }
