@@ -93,13 +93,25 @@ export function activate(context: vscode.ExtensionContext) {
                     folders.push(new node.FolderItem(name, uri));
                 }
         }
-        // TODO: Remove the test code
-        // folders[0].born(new node.ChangedItem('aaa', vscode.Uri.parse(path.join('aaa'))));
-        // files[0].born(new File('bbb', vscode.Uri.parse(path.join('bbb')), 1));
-        // files[0].born(new File('ccc', vscode.Uri.parse(path.join('ccc')), 2));
         fp.setData(folders);
         tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
         tree.onDidChangeSelection( e => setSelectedFile(<node.FileItem>(e.selection[0])) );
+
+        // Remove all temporary files
+        fs.readdir(path.join(extRoot, 'temporary'), function (err, files) {
+            if (err) {
+                throw err;
+            }
+            for( const file of files ) {
+                if(file === 'readme.log')
+                    continue;
+                fs.rm(file, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                });
+            }
+        });
     });
 
     let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
@@ -237,6 +249,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     async function VsCodeDiff(rev: string) {
         const selected: node.FileItem = selectedFile;
+        if(!selected.parent)
+            return;
         const repoRoot = selected.parent.uri.fsPath;
         const selectedPath: string = selected.label;
         const cvs = new CVS(repoRoot, platform);
