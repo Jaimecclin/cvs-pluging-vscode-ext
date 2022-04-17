@@ -173,6 +173,11 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+        if(!(selectedFile instanceof node.ChangedItem)) {
+            vscode.window.showErrorMessage('Please select a modified file to diff.');
+            return;
+        }
+
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
             cancellable: false,
