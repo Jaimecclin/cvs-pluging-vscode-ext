@@ -115,6 +115,7 @@ export class FolderItem extends FileItem {
     ){
         super(label, uri, vscode.TreeItemCollapsibleState.Collapsed, parent);
     }
+    contextValue = 'repository';
 }
 
 export class ChangedItem extends FileItem {

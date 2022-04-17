@@ -74,16 +74,18 @@
         ]
       },
       "menus": {
-        "view/title": [
+        "view/item/context": [
           {
             "command": "cvs-plugin.status",
-            "when": "view == changed-files",
-            "group": "navigation"
+            "title": "cvs status",
+            "when": "viewItem == repository",
+            "group": "inline"
           },
           {
             "command": "cvs-plugin.diff",
-            "when": "view == changed-files",
-            "group": "navigation"
+            "title": "cvs diff",
+            "when": "viewItem == changed",
+            "group": "inline"
           }
         ]
       }

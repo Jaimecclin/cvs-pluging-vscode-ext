@@ -261,10 +261,8 @@ export function activate(context: vscode.ExtensionContext) {
             if (res_co[1]) {
                 const tempFileName = 'rev-'+ rev + '-' + selectedPath.replace(/\//gi, '-');
                 const tempFilePath = path.join(extRoot, 'temporary', tempFileName);
-                
                 logger.appendLine('tempFileName:' + tempFileName);
                 logger.appendLine('tempFilePath:' + tempFilePath);
-                logger.appendLine('File content:' + res_co[1]);
                 const content = Buffer.from(res_co[1], 'utf8');
                 fs.writeFile(tempFilePath, content, function (err) {
                     if (err) {
