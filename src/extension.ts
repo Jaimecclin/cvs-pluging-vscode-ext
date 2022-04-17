@@ -122,6 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             const selected: node.FolderItem = selectedFile; 
             const cvs = new CVS(selected.uri.fsPath, platform);
+            // TODO: sort the status
             const res = await cvs.onGetStatus();
             
             if (res[0]) {
@@ -171,6 +172,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage('Please select a file to diff.');
             return;
         }
+
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
             cancellable: false,
@@ -182,63 +184,94 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
             const cvs = new CVS(selected.parent.uri.fsPath, platform);
-            // We need relative path here, so use label for now
-            const res = await cvs.onGetDiff(selected.label);
-            if (res[0]) {
-                vscode.window.showErrorMessage('Unable to show file changes');
+            const res_rev = await cvs.onGetRevision(selected.label);
+            if (res_rev[0] || !res_rev[1]) {
+                vscode.window.showErrorMessage('Fail to get the file revision (Error 1)');
+                return;
+            }
+            const rev: string = res_rev[1].trim();
+            // TODO: Modify it to if VsCodeDiff failed, do CvsDiff. 
+            if (rev) {
+                VsCodeDiff(rev);
             }
             else {
-                if (res[1]) {
-                    const newFile = vscode.Uri.parse('Untitled:' + path.join(extRoot, selectedFile.label + '.diff'));
-                    vscode.workspace.openTextDocument(newFile).then(document => {
-                        const edit = new vscode.WorkspaceEdit();
-                        if(!res[1])
-                            return;
-                        edit.insert(newFile, new vscode.Position(0, 0), res[1]);
-                        return vscode.workspace.applyEdit(edit).then(success => {
-                            if (success) {
-                                vscode.window.showTextDocument(document);
-                            } else {
-                                vscode.window.showInformationMessage('Error!');
-                            }
-                        });
-                    });
+                // We need relative path here, so use label for now
+                const res = await cvs.onGetDiff(selected.label);
+                if (res[0]) {
+                    vscode.window.showErrorMessage('Unable to show file changes. (Error 1)');
                 }
                 else {
-                    vscode.window.showErrorMessage('Something wrong...');
+                    if (res[1]) {
+                        const newFile = vscode.Uri.parse('Untitled:' + path.join(extRoot, selectedFile.label + '.diff'));
+                        vscode.workspace.openTextDocument(newFile).then(document => {
+                            const edit = new vscode.WorkspaceEdit();
+                            if(!res[1])
+                                return;
+                            edit.insert(newFile, new vscode.Position(0, 0), res[1]);
+                            return vscode.workspace.applyEdit(edit).then(success => {
+                                if (success) {
+                                    vscode.window.showTextDocument(document);
+                                } else {
+                                    vscode.window.showInformationMessage('Error!');
+                                }
+                            });
+                        });
+                    }
+                    else {
+                        vscode.window.showErrorMessage('Unable to show file changes. (Error 2)');
+                    }
                 }
             }
+            
         });
     });
 
+    async function CvsDiff() {
+
+    }
+
+    async function VsCodeDiff(rev: string) {
+        const selected: node.FileItem = selectedFile;
+        const repoRoot = selected.parent.uri.fsPath;
+        const selectedPath: string = selected.label;
+        const cvs = new CVS(repoRoot, platform);
+        const res_co = await cvs.onCheckoutFile(selectedPath, rev);
+        if (res_co[0]) {
+            vscode.window.showErrorMessage('Fail to checkout file. (Error 1)');
+        }
+        else {
+            if (res_co[1]) {
+                const tempFileName = 'rev-'+ rev + '-' + selectedPath.replace(/\//gi, '-');
+                const tempFilePath = path.join(extRoot, 'temporary', tempFileName);
+                
+                logger.appendLine('tempFileName:' + tempFileName);
+                logger.appendLine('tempFilePath:' + tempFilePath);
+                logger.appendLine('File content:' + res_co[1]);
+                const content = Buffer.from(res_co[1], 'utf8');
+                fs.writeFile(tempFilePath, content, function (err) {
+                    if (err) {
+                        vscode.window.showErrorMessage('Fail to checkout file to local');
+                        throw err;
+                    }
+                  });
+                let uriOrigFile = vscode.Uri.file(tempFilePath);
+                let uriCurrFile = vscode.Uri.file(path.join(repoRoot, selectedPath));
+                let success = await vscode.commands.executeCommand('vscode.diff', uriOrigFile, uriCurrFile);
+            }
+            else {
+                vscode.window.showErrorMessage('Fail to checkout file. (Error 2)');
+            }
+        }
+    }
+
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
-        // const inputCmd :string | undefined = await vscode.window.showInputBox();
-        // if(inputCmd)
-        //     exeCommand(inputCmd);
-        // let uri1 = vscode.Uri.file('C:\\Users\\Chien-Chin Lin\\Documents\\Works\\vscode\\example-ext\\src\\node.ts');
-        // let success = await vscode.commands.executeCommand('vscode.openFolder', uri);
-        // console.log(uri1);
-        // let success = await vscode.commands.executeCommand("vscode.diff", uri1, uri1);
-        // WhiteBoard.appendLine("onGetRevision");
-        // const cvs = new CVS(workspaceRoot, platform);
-        // const res = await cvs.onGetRevision("ChangeLog");
-        // WhiteBoard.appendLine("After onGetRevision");
-        // if (res[0]) {
-        //     // vscode.window.showErrorMessage('Unable to show changes in local copy of repository.');
-        //     WhiteBoard.appendLine("1");
-        // }
-        // else {
-        //     if (res[1]) {
-        //         WhiteBoard.appendLine("2");
-        //         WhiteBoard.appendLine(res[1]);
-        //     }
-        // }
-        // WhiteBoard.show();
+        vscode.window.showInformationMessage('Test Command');
     });
 
     context.subscriptions.push(disposable);
     context.subscriptions.push(cvsStatus);
     context.subscriptions.push(cvsDiff);
+    context.subscriptions.push(cmdTest);
 }
 
 // this method is called when your extension is deactivated

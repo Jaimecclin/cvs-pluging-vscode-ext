@@ -93,11 +93,6 @@ export class FileItem extends vscode.TreeItem {
 
     contextValue = 'folder_item';
     cvsRepo = path.join(this.uri.fsPath, 'CVS', 'Repository');
-    // try {
-    //     repoName = fs.readFileSync(cvsRepo, 'utf8');
-    // } catch (err) {
-    //     vscode.window.showErrorMessage('CVS-plugin cannot find CVS/Repository in the workspace.');
-    // }
 
     born(item: FileItem) {
         this.children.push(item);

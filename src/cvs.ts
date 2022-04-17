@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 import {spawn} from 'child_process';
 
 import { logger } from './log'
@@ -7,11 +9,20 @@ export class CVS {
 
     private folderRoot;
     private platform;
+    private repoName;
 
     constructor(folderRoot: string, platform: string) {
         this.folderRoot = folderRoot;
         this.platform = platform;
+        try {
+            this.repoName = fs.readFileSync(path.join(folderRoot, 'CVS/Repository'), 'utf8').trim();
+        } catch (err) {
+            const msg = 'CVS-plugin cannot find CVS/Repository in the workspace. Use the folder name as default';
+            vscode.window.showInformationMessage(msg);
+            this.repoName = path.basename(folderRoot)
+        }
     };
+        
 
     private createCommand(cmd: string, options: string[]=[]) {
         if (this.platform === 'win32') {
@@ -26,15 +37,20 @@ export class CVS {
     onGetRevision(filePath: string): Promise<[number, string | undefined]> {
         const cvs = this.createCommand("cvs", ["-bSN", "log", filePath]);
         const head = this.createCommand("head", ["-n", "30"]);
-        const grep = this.createCommand('grep', ["-m", "1", "-Po", "'(?<=revision )[^ ]+'"]);
+        const grep = this.createCommand('grep', ["-m", "1", "-o", "revision .*"]);
+        const tr = this.createCommand('tr', ["-d", "revision "]);
 
-        cvs.stdout.pipe(grep.stdin);
-        head.stdout.pipe(cvs.stdin);
-        grep.stdout.pipe(process.stdin);
+        cvs.stdout.pipe(head.stdin);
+        head.stdout.pipe(grep.stdin);
+        grep.stdout.pipe(tr.stdin);
+        tr.stdout.pipe(process.stdin);
+        grep.on('close', () => {
+            logger.appendLine('grep command is closing');
+        });
 
         return new Promise((resolve, reject) => {
             let res = '';
-            grep.once('exit', (code: number, signal: string) => {
+            tr.once('exit', (code: number, signal: string) => {
                 if (res.length) {
                     resolve([code, res]);
                 }
@@ -43,17 +59,20 @@ export class CVS {
                 }
             });
 
-            grep.once('error', (err: Error) => {
+            tr.once('error', (err: Error) => {
+                logger.appendLine('error: ' + err);
                 reject(err);
             });
 
-            grep.stdout
+            tr.stdout
             .on("data", (chunk: string | Buffer) => {
+                logger.appendLine('stdout: ' + chunk);
                 res += chunk.toString().replace(/[\r\n]/g, '\n');
             });
 
-            grep.stderr
+            tr.stderr
             .on("data", (chunk: string | Buffer) => {
+                logger.appendLine(chunk as string);
             });
         });
     }
@@ -81,6 +100,7 @@ export class CVS {
 
             diff.stderr
             .on("data", (chunk: string | Buffer) => {
+                logger.appendLine(chunk as string);
             });
         });
     }
@@ -118,9 +138,40 @@ export class CVS {
 
             proc.stderr
             .on("data", (chunk: string | Buffer) => {
-                // this.m_Logger.print(chunk as string);
-                // console.error("stderr")
-                // WhiteBoard.appendLine('stderr');
+                logger.appendLine(chunk as string);
+            });
+        });
+    }
+
+    onCheckoutFile(filename: string, rev: string): Promise<[number, string | undefined]> {
+        const filepath = path.join(this.repoName, filename);
+        logger.appendLine('ssss ' + filepath);
+        const proc = this.createCommand('cvs', ['co', '-p', '-r', rev, filepath]);
+        
+        return new Promise((resolve, reject) => {
+            let content = '';
+            proc.once('exit', (code: number, signal: string) => {
+                if (content.length) {
+                    resolve([code, content]);
+                }
+                else {
+                    resolve([code, undefined]);
+                }
+            });
+
+            proc.once('error', (err: Error) => {
+                logger.appendLine(err.message);
+                reject(err);
+            });
+
+            proc.stdout
+            .on("data", (chunk: string | Buffer) => {
+                content += chunk.toString().replace(/[\r\n]/g, '\n');
+            });
+
+            proc.stderr
+            .on("data", (chunk: string | Buffer) => {
+                logger.appendLine(chunk as string);
             });
         });
     }
