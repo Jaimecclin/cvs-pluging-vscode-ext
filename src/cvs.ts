@@ -36,8 +36,8 @@ export class CVS {
 
     onGetRevision(filePath: string): Promise<[number, string | undefined]> {
         const cvs = this.createCommand("cvs", ["-bSN", "log", filePath]);
-        const head = this.createCommand("head", ["-n", "30"]);
-        const grep = this.createCommand('grep', ["-m", "1", "-o", "revision .*"]);
+        const head = this.createCommand("head", ["-n", "50"]);
+        const grep = this.createCommand('grep', ["-m", "1", "-Po", "revision \d*.\d*"]);
         const tr = this.createCommand('tr', ["-d", "revision "]);
 
         cvs.stdout.pipe(head.stdin);
@@ -145,7 +145,7 @@ export class CVS {
 
     onCheckoutFile(filename: string, rev: string): Promise<[number, string | undefined]> {
         const filepath = path.join(this.repoName, filename);
-        logger.appendLine('ssss ' + filepath);
+        logger.appendLine('checkout file path: ' + filepath);
         const proc = this.createCommand('cvs', ['co', '-p', '-r', rev, filepath]);
         
         return new Promise((resolve, reject) => {

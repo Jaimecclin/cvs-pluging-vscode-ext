@@ -36,19 +36,10 @@ export class FolderProvider implements vscode.TreeDataProvider<FileItem> {
     }
 
     getChildren(element?: FileItem): Thenable<FileItem[]> {
-        // Only present the root level
-        // if(element) {
-        //     return Promise.resolve([]);
-        // }
-        // if (!this.workspaceRoot) {
-        //     vscode.window.showInformationMessage('empty workspace');
-        //     return Promise.resolve([]);
-        // }
         if(!element){
             return Promise.resolve(this.data);
         }
         else {
-            logger.appendLine('321');
             return Promise.resolve(element.children);
         }
     }
