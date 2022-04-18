@@ -28,7 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
     let workspaceRoot :string | undefined = '';
     let extRoot :string = context.extensionPath;
     const fp = new node.FolderProvider(workspaceRoot);
-    let tree: vscode.TreeView<vscode.TreeItem>; 
+    let tree: vscode.TreeView<vscode.TreeItem>;
+    let enableFilter: boolean = true;
 
     if (!vscode.workspace.workspaceFolders) {
         workspaceRoot = vscode.workspace.rootPath;
@@ -284,9 +285,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Test Command');
     });
 
+    let fileFilter = vscode.commands.registerCommand('cvs-plugin.filter', async function () {
+        enableFilter != enableFilter;
+        vscode.window.showInformationMessage('enableFilter:' + enableFilter);
+    });
+
     context.subscriptions.push(disposable);
     context.subscriptions.push(cvsStatus);
     context.subscriptions.push(cvsDiff);
+    context.subscriptions.push(fileFilter);
     context.subscriptions.push(cmdTest);
 }
 

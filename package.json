@@ -8,7 +8,7 @@
     "displayName": "CVS-plugin",
     "icon": "resources/ink-swirl-svgrepo-com.png",
     "description": "A CVS version control extension",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "engines": {
       "vscode": "^1.65.0"
     },
@@ -19,6 +19,7 @@
       "onCommand:cvs-plugin.start",
       "onCommand:cvs-plugin.status",
       "onCommand:cvs-plugin.diff",
+      "onCommand:cvs-plugin.filter",
       "onCommand:cvs-plugin.cmdTest"
     ],
     "main": "./out/extension.js",
@@ -47,6 +48,11 @@
           "command": "cvs-plugin.diff",
           "title": "cvs diff",
           "icon": "resources/dark/diff.svg"
+        },
+        {
+          "command": "cvs-plugin.filter",
+          "title": "open/close filter",
+          "icon": "resources/dark/filter.svg"
         }
       ],
       "viewsContainers": {
@@ -74,6 +80,14 @@
         ]
       },
       "menus": {
+        "view/title": [
+          {
+            "command": "cvs-plugin.filter",
+            "title": "filter",
+            "when": "true",
+            "group": "navigation"
+          }
+        ],
         "view/item/context": [
           {
             "command": "cvs-plugin.status",
