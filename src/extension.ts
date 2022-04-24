@@ -27,9 +27,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     let workspaceRoot :string | undefined = '';
     let extRoot :string = context.extensionPath;
-    const fp = new node.FolderProvider(workspaceRoot);
+    let filter: Map<string, boolean> = new Map([['changed', true], 
+                                                ['updated', false],
+                                                ['questionable', false],
+                                                ['conflict', true]]);
+    const fp = new node.FolderProvider(workspaceRoot, filter);
     let tree: vscode.TreeView<vscode.TreeItem>;
-    let enableFilter: boolean = true;
 
     if (!vscode.workspace.workspaceFolders) {
         workspaceRoot = vscode.workspace.rootPath;
@@ -75,9 +78,13 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    let disposable = vscode.commands.registerCommand('cvs-plugin.start', function () {
+    let init = vscode.commands.registerCommand('cvs-plugin.start', function () {
         // TODO: check env here
         vscode.commands.executeCommand('setContext', 'cvs-plugin.started', true);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_changed_status', filter.get('changed'));
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_conflict_status', filter.get('conflict'));
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_updated_status', filter.get('updated'));
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_questionable_status', filter.get('questionable'));
         
         let folders: node.FileItem[] = [];
         if(workspaceRoot){
@@ -285,15 +292,64 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Test Command');
     });
 
-    let fileFilter = vscode.commands.registerCommand('cvs-plugin.filter', async function () {
-        enableFilter != enableFilter;
-        vscode.window.showInformationMessage('enableFilter:' + enableFilter);
+    let filterEnableViewChanged = vscode.commands.registerCommand('cvs-plugin.enable_view_changed', async function () {
+        filter.set('changed', true);
+        fp.refresh();
     });
 
-    context.subscriptions.push(disposable);
+    let filterDisableViewChanged = vscode.commands.registerCommand('cvs-plugin.disable_view_changed', async function () {
+        filter.set('changed', false);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_changed_status', false);
+        fp.refresh();
+    });
+
+    let filterEnableViewConflict = vscode.commands.registerCommand('cvs-plugin.enable_view_conflict', async function () {
+        filter.set('conflict', true);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_conflict_status', true);
+        fp.refresh();
+    });
+
+    let filterDisableViewConflict = vscode.commands.registerCommand('cvs-plugin.disable_view_conflict', async function () {
+        filter.set('conflict', false);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_conflict_status', false);
+        fp.refresh();
+    });
+
+    let filterEnableViewUpdated = vscode.commands.registerCommand('cvs-plugin.enable_view_updated', async function () {
+        filter.set('updated', true);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_updated_status', true);
+        fp.refresh();
+    });
+
+    let filterDisableViewUpdated = vscode.commands.registerCommand('cvs-plugin.disable_view_updated', async function () {
+        filter.set('updated', false);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_updated_status', false);
+        fp.refresh();
+    });
+
+    let filterEnableViewQuestionable = vscode.commands.registerCommand('cvs-plugin.enable_view_questionable', async function () {
+        filter.set('questionable', true);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_questionable_status', true);
+        fp.refresh();
+    });
+
+    let filterDisableViewQuestionable = vscode.commands.registerCommand('cvs-plugin.disable_view_questionable', async function () {
+        filter.set('questionable', false);
+        vscode.commands.executeCommand('setContext', 'cvs-plugin.view_questionable_status', false);
+        fp.refresh();
+    });
+
+    context.subscriptions.push(init);
     context.subscriptions.push(cvsStatus);
     context.subscriptions.push(cvsDiff);
-    context.subscriptions.push(fileFilter);
+    context.subscriptions.push(filterEnableViewChanged);
+    context.subscriptions.push(filterDisableViewChanged);
+    context.subscriptions.push(filterEnableViewConflict);
+    context.subscriptions.push(filterDisableViewConflict);
+    context.subscriptions.push(filterEnableViewUpdated);
+    context.subscriptions.push(filterDisableViewUpdated);
+    context.subscriptions.push(filterEnableViewQuestionable);
+    context.subscriptions.push(filterDisableViewQuestionable);
     context.subscriptions.push(cmdTest);
 }
 

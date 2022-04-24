@@ -23,8 +23,11 @@ export class FolderProvider implements vscode.TreeDataProvider<FileItem> {
 
     private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined | void> = new vscode.EventEmitter<FileItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<FileItem | undefined | void> = this._onDidChangeTreeData.event;
+    private filter: Map<string, boolean>;
     private data: FileItem[] = [];
-        constructor(private workspaceRoot: string | undefined) {
+    constructor(private workspaceRoot: string | undefined,
+                filter: Map<string, boolean>) {
+        this.filter = filter;
     }
 
     refresh(): void {
@@ -40,7 +43,7 @@ export class FolderProvider implements vscode.TreeDataProvider<FileItem> {
             return Promise.resolve(this.data);
         }
         else {
-            return Promise.resolve(element.children);
+            return Promise.resolve(element.getChildren(this.filter));
         }
     }
 
@@ -63,6 +66,7 @@ export class FolderProvider implements vscode.TreeDataProvider<FileItem> {
 export class FileItem extends vscode.TreeItem {
 
     children: FileItem[] = [];
+    filteredChild: FileItem[] = [];
     constructor(
         public readonly label: string,
         public readonly uri: vscode.Uri,
@@ -93,8 +97,19 @@ export class FileItem extends vscode.TreeItem {
         this.children = [];
     }
 
-    getChildren(): FileItem[] {
-        return this.children;
+    getChildren(filter: Map<string, boolean>): FileItem[] {
+        this.filteredChild = [];
+        for(const child of this.children) {
+            if(child instanceof ChangedItem && filter.get('changed'))
+                this.filteredChild.push(child);
+            else if(child instanceof ConflictItem && filter.get('conflict'))
+                this.filteredChild.push(child);
+            else if(child instanceof UpdatedItem && filter.get('updated'))
+                this.filteredChild.push(child);
+            else if(child instanceof QuestionableItem && filter.get('questionable'))
+                this.filteredChild.push(child);
+        }
+        return this.filteredChild;
     }
 }
 

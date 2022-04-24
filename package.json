@@ -19,7 +19,6 @@
       "onCommand:cvs-plugin.start",
       "onCommand:cvs-plugin.status",
       "onCommand:cvs-plugin.diff",
-      "onCommand:cvs-plugin.filter",
       "onCommand:cvs-plugin.cmdTest"
     ],
     "main": "./out/extension.js",
@@ -50,9 +49,36 @@
           "icon": "resources/dark/diff.svg"
         },
         {
-          "command": "cvs-plugin.filter",
-          "title": "open/close filter",
-          "icon": "resources/dark/filter.svg"
+          "command": "cvs-plugin.enable_view_changed",
+          "title": "Changed Files"
+        },
+        {
+          "command": "cvs-plugin.disable_view_changed",
+          "title": "Changed Files  ✓"
+        },
+        {
+          "command": "cvs-plugin.enable_view_conflict",
+          "title": "Conflict Files"
+        },
+        {
+          "command": "cvs-plugin.disable_view_conflict",
+          "title": "Conflict Files  ✓"
+        },
+        {
+          "command": "cvs-plugin.enable_view_updated",
+          "title": "Updated Files"
+        },
+        {
+          "command": "cvs-plugin.disable_view_updated",
+          "title": "Updated Files  ✓"
+        },
+        {
+          "command": "cvs-plugin.enable_view_questionable",
+          "title": "Questionable Files"
+        },
+        {
+          "command": "cvs-plugin.disable_view_questionable",
+          "title": "Questionable Files  ✓"
         }
       ],
       "viewsContainers": {
@@ -82,10 +108,36 @@
       "menus": {
         "view/title": [
           {
-            "command": "cvs-plugin.filter",
-            "title": "filter",
-            "when": "true",
-            "group": "navigation"
+            "command": "cvs-plugin.enable_view_changed",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_changed_status == false"
+          },
+          {
+            "command": "cvs-plugin.disable_view_changed",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_changed_status == true"
+          },
+          {
+            "command": "cvs-plugin.enable_view_conflict",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_conflict_status == false"
+          },
+          {
+            "command": "cvs-plugin.disable_view_conflict",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_conflict_status == true"
+          },
+          {
+            "command": "cvs-plugin.enable_view_updated",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_updated_status == false"
+          },
+          {
+            "command": "cvs-plugin.disable_view_updated",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_updated_status == true"
+          },
+          {
+            "command": "cvs-plugin.enable_view_questionable",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_questionable_status == false"
+          },
+          {
+            "command": "cvs-plugin.disable_view_questionable",
+            "when": "cvs-plugin.started == true && cvs-plugin.view_questionable_status == true"
           }
         ],
         "view/item/context": [
