@@ -53,14 +53,20 @@ Get all file status from the selected folder.
 
 3. See the file status
 
-    ![refreshed-2](/resources/readme/refresh-2.png "Refresh 2")
-
-    Status Note
-
+    There are four status types provided. The modified and conflict files are enabled.
     * M : Modified file
+    * C : Conflict file
     * ? : Questionable file
     * U : Updated file (in server)
-    * C : Conflict file
+
+    ![refreshed-2](/resources/readme/refresh-2.png "Refresh 2")
+
+    You can select the types you'r interested in. The items will be updated then.
+
+    ![refresh-filter-1](/resources/readme/refresh-filter-1.png "Filter 1")
+
+    ![refresh-filter-2](/resources/readme/refresh-filter-2.png "Filter 2")
+
 
 ### cvs diff file
 
