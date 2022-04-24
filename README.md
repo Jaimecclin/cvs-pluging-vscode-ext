@@ -75,6 +75,7 @@ Get all file status from the selected folder.
     ![diff](/resources/readme/diff.png "Diff")
 
     *** Note ***
+    
     This function is a bit different than standard `cvs diff`. The diff content is from comparing the current code to the latest revision code instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
 
 ### cvs update
