@@ -53,7 +53,7 @@ Get all file status from the selected folder.
 
 3. See the file status
 
-    There are four status types provided. The modified and conflict files are enabled.
+    There are four status types provided. The modified and conflict files are enabled by default.
     * M : Modified file
     * C : Conflict file
     * ? : Questionable file
@@ -73,6 +73,9 @@ Get all file status from the selected folder.
 1. Select the file you want to compare and click the diff button.
 
     ![diff](/resources/readme/diff.png "Diff")
+
+    *** Note ***
+    This function is a bit different than standard `cvs diff`. The diff content is from comparing the current code to the latest revision code instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
 
 ### cvs update
 
