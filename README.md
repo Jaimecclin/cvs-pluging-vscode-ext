@@ -1,26 +1,12 @@
 # cvs-plugin
 
-This extension is to help people stuck with poor and out-of-date version control software `cvs`. You can easily use it like a current version control system.
+CVS is an old but powerful version control software. Honestly, it'b a bit out-of-date and young people are not quite familiar with it. If you're such a unfortunate guy and you have to use it in your working environment, this extension will have your back. You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!
 
 **Important**
 
 This extension supports **multi-root** workspaces. Please open your each CVS repository at the top of workspace, like this
 
-```
-Workspace
-   |
-   |----- CVS repo 1
-   |           |
-   |           |----- file1
-   |           |
-   |           |----- file2
-   |----- CVS repo 2
-               |
-               |----- file1
-               |
-               |----- file2
-```
-
+![file-hierachy](resources%5Creadme%5Cfile-hierachy.png)
 
 ### Tested environment
 
