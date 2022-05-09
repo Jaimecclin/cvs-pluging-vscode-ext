@@ -6,7 +6,7 @@ CVS is an old but powerful version control software. Honestly, it'b a bit out-of
 
 This extension supports **multi-root** workspaces. Please open your each CVS repository at the top of workspace, like this
 
-![file-hierachy](resources%5Creadme%5Cfile-hierachy.png)
+![file-hierachy](/resources/readme/file-hierachy.png "Folder structure")
 
 ### Tested environment
 
