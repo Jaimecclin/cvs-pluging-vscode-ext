@@ -32,7 +32,8 @@
       "commands": [
         {
           "command": "cvs-plugin.start",
-          "title": "start"
+          "title": "start fetching all folders",
+          "icon": "resources/dark/refresh.svg"
         },
         {
           "command": "cvs-plugin.status",
@@ -107,6 +108,11 @@
       },
       "menus": {
         "view/title": [
+          {
+            "command": "cvs-plugin.start",
+            "when": "cvs-plugin.started == true",
+            "group": "navigation"
+          },    
           {
             "command": "cvs-plugin.enable_view_changed",
             "when": "cvs-plugin.started == true && cvs-plugin.view_changed_status == false"
