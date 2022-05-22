@@ -25,6 +25,12 @@ This extension supports **multi-root** workspaces. Please open your each CVS rep
    
    ![actived](/resources/readme/actived.png "Active page")
 
+    #### Note
+
+    If you add a new repository into the workspace, please click this button to fetch all folders again.
+
+    ![refetch](/resources/readme/refetch.png "Refetch button")
+
 ### cvs status
 
 Get all file status from the selected folder.
@@ -35,6 +41,8 @@ Get all file status from the selected folder.
 
 2. Wait
 
+    ***Please do NOT click the status button repeatedly. If you have a large repository, you might need to wait for a while. CVS is not a fast tool but it gives your a correct result finally.***
+    
     ![refreshing-demo](/resources/readme/refreshing-demo.png "Refreshing Demo")
 
 3. See the file status
@@ -63,6 +71,11 @@ Get all file status from the selected folder.
     *** Note ***
     
     This function is a bit different than standard `cvs diff`. The diff content is from comparing the current code to the latest revision code instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
+
+2. (Not essential) You can click this button to open file.
+
+    ![openfile](/resources/readme/open-file.png "OpenFile")
+
 
 ### cvs update
 

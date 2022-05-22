@@ -50,6 +50,11 @@
           "icon": "resources/dark/diff.svg"
         },
         {
+          "command": "cvs-plugin.openFile",
+          "title": "open file",
+          "icon": "resources/dark/file-code.svg"
+        },
+        {
           "command": "cvs-plugin.enable_view_changed",
           "title": "Changed Files"
         },
@@ -156,6 +161,12 @@
           {
             "command": "cvs-plugin.diff",
             "title": "cvs diff",
+            "when": "viewItem == changed",
+            "group": "inline"
+          },
+          {
+            "command": "cvs-plugin.openFile",
+            "title": "open file",
             "when": "viewItem == changed",
             "group": "inline"
           }

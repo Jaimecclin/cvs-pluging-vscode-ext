@@ -288,6 +288,16 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
+    let openFile = vscode.commands.registerCommand('cvs-plugin.openFile', async function () {
+        const selected: node.FileItem = selectedFile;
+        if(!selected.parent)
+            return;
+        const repoRoot = selected.parent.uri.fsPath;
+        const selectedPath: string = selected.label;
+        let uriFilePath = vscode.Uri.file(path.join(repoRoot, selectedPath));
+        let success = await vscode.commands.executeCommand('vscode.open', uriFilePath);
+    });
+
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
         vscode.window.showInformationMessage('Test Command');
     });
@@ -350,6 +360,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(filterDisableViewUpdated);
     context.subscriptions.push(filterEnableViewQuestionable);
     context.subscriptions.push(filterDisableViewQuestionable);
+    context.subscriptions.push(openFile);
     context.subscriptions.push(cmdTest);
 }
 
