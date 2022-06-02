@@ -35,7 +35,7 @@ export class CVS {
     }
 
     onGetRevision(filePath: string): Promise<[number, string | undefined]> {
-        const cvs = this.createCommand("cvs", ["-bSN", "log", filePath]);
+        const cvs = this.createCommand("cvs", ["log", "-bSN", filePath]);
         const head = this.createCommand("head", ["-n", "50"]);
         const grep = this.createCommand('grep', ["-m", "1", "-Po", "revision \d*.\d*"]);
         const tr = this.createCommand('tr', ["-d", "revision "]);
