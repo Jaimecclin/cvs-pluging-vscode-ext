@@ -1,10 +1,10 @@
 # cvs-plugin
 
-CVS is an old but powerful version control software. Honestly, it'b a bit out-of-date and young people are not quite familiar with it. If you're such a unfortunate guy and you have to use it in your working environment, this extension will have your back. You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!
+CVS is an old but powerful version control software. Honestly, it's a bit out-of-date and young people are not quite familiar with it. If you're such an unfortunate guy and you have to use it in your working environment, this extension will have your back. You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!
 
 **Important**
 
-This extension supports **multi-root** workspaces. Please open your each CVS repository at the top of workspace, like this
+This extension supports **multi-root** workspaces. Please open each CVS repository at the top of the workspace, like this
 
 ![file-hierachy](/resources/readme/file-hierachy.png "Folder structure")
 
@@ -41,7 +41,7 @@ Get all file status from the selected folder.
 
 2. Wait
 
-    ***Please do NOT click the status button repeatedly. If you have a large repository, you might need to wait for a while. CVS is not a fast tool but it gives your a correct result finally.***
+    ***Please do NOT click the status button repeatedly. If you have a large repository, you might need to wait for a while. CVS is not a fast tool but it gives your the correct result finally.***
     
     ![refreshing-demo](/resources/readme/refreshing-demo.png "Refreshing Demo")
 
@@ -55,7 +55,7 @@ Get all file status from the selected folder.
 
     ![refreshed-2](/resources/readme/refresh-2.png "Refresh 2")
 
-    You can select the types you'r interested in. The items will be updated then.
+    You can select the types you're interested in. The items will be updated then.
 
     ![refresh-filter-1](/resources/readme/refresh-filter-1.png "Filter 1")
 
@@ -70,9 +70,9 @@ Get all file status from the selected folder.
 
     *** Note ***
     
-    This function is a bit different than standard `cvs diff`. The diff content is from comparing the current code to the latest revision code instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
+    This function is a bit different than the standard `cvs diff`. The diff content is from comparing the current code to the latest revision code instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
 
-2. (Not essential) You can click this button to open file.
+2. (Not essential) You can click this button to open the file.
 
     ![openfile](/resources/readme/open-file.png "OpenFile")
 
