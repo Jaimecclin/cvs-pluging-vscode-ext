@@ -4,7 +4,7 @@ class WhiteBoard {
     private wb;
     private debug: boolean = false;
     constructor() {
-        this.wb = vscode.window.createOutputChannel("WhiteBoard");
+        this.wb = vscode.window.createOutputChannel("cvs-plugin-log");
         this.wb.show();
         this.appendLine('Logger is initialized');
     }

@@ -30,6 +30,7 @@ export class CVS {
             return spawn('powershell', options, {cwd: this.folderRoot});
         }
         else {
+            logger.appendLine("Linux exe cmd: `" + cmd + ' ' + options.join(' ') + '`');
             return spawn(cmd, options, {cwd: this.folderRoot});
         }
     }
@@ -66,7 +67,7 @@ export class CVS {
 
             tr.stdout
             .on("data", (chunk: string | Buffer) => {
-                logger.appendLine('stdout: ' + chunk);
+                // logger.appendLine('stdout: ' + chunk);
                 res += chunk.toString().replace(/[\r\n]/g, '\n');
             });
 
