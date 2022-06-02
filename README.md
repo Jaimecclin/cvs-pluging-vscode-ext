@@ -88,3 +88,8 @@ Get all file status from the selected folder.
 
 
 **Any bugs, please report it to this repository. Enjoy!**
+
+
+### Update note
+
+* 6/3/2022 v0.2.6 Show the executed commands in VSCode output panel `cvs-plugin-log`
