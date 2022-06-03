@@ -52,6 +52,7 @@ export class CVS {
         return new Promise((resolve, reject) => {
             let res = '';
             tr.once('exit', (code: number, signal: string) => {
+                logger.appendLine("return code: " + code);
                 if (res.length) {
                     resolve([code, res]);
                 }
@@ -91,6 +92,7 @@ export class CVS {
             });
 
             diff.once('error', (err: Error) => {
+                logger.appendLine(err.message);
                 reject(err);
             });
 
@@ -118,6 +120,7 @@ export class CVS {
         return new Promise((resolve, reject) => {
             let changes = '';
             proc.once('exit', (code: number, signal: string) => {
+                logger.appendLine("return code: " + code);
                 if (changes.length) {
                     resolve([code, changes]);
                 }
@@ -127,8 +130,7 @@ export class CVS {
             });
 
             proc.once('error', (err: Error) => {
-                // console.error("process error")
-                // WhiteBoard.appendLine('process error');
+                logger.appendLine(err.message);
                 reject(err);
             });
 
@@ -144,14 +146,19 @@ export class CVS {
         });
     }
 
-    onCheckoutFile(filename: string, rev: string): Promise<[number, string | undefined]> {
+    onCheckoutFile(filename: string, rev: string=""): Promise<[number, string | undefined]> {
         const filepath = path.join(this.repoName, filename);
         logger.appendLine('checkout file path: ' + filepath);
-        const proc = this.createCommand('cvs', ['co', '-p', '-r', rev, filepath]);
-        
+        let proc: any;
+        if(!rev)
+            proc = this.createCommand('cvs', ['co', '-p', '-r', rev, filepath]);
+        else
+            proc = this.createCommand('cvs', ['-Q', 'update', '-C', '-p', filepath]);
+
         return new Promise((resolve, reject) => {
             let content = '';
             proc.once('exit', (code: number, signal: string) => {
+                logger.appendLine("return code: " + code);
                 if (content.length) {
                     resolve([code, content]);
                 }

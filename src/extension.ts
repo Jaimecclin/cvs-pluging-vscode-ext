@@ -207,46 +207,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage('Something wrong...');
                 return;
             }
-            const cvs = new CVS(selected.parent.uri.fsPath, platform);
-            const res_rev = await cvs.onGetRevision(selected.label);
-            if (res_rev[0] || !res_rev[1]) {
-                vscode.window.showErrorMessage('Fail to get the file revision (Error 1)');
-                return;
-            }
-            const rev: string = res_rev[1].trim();
-            // TODO: Modify it to if VsCodeDiff failed, do CvsDiff. 
-            if (rev) {
-                VsCodeDiff(rev);
-            }
-            else {
-                // We need relative path here, so use label for now
-                const res = await cvs.onGetDiff(selected.label);
-                if (res[0]) {
-                    vscode.window.showErrorMessage('Unable to show file changes. (Error 1)');
-                }
-                else {
-                    if (res[1]) {
-                        const newFile = vscode.Uri.parse('Untitled:' + path.join(extRoot, selectedFile.label + '.diff'));
-                        vscode.workspace.openTextDocument(newFile).then(document => {
-                            const edit = new vscode.WorkspaceEdit();
-                            if(!res[1])
-                                return;
-                            edit.insert(newFile, new vscode.Position(0, 0), res[1]);
-                            return vscode.workspace.applyEdit(edit).then(success => {
-                                if (success) {
-                                    vscode.window.showTextDocument(document);
-                                } else {
-                                    vscode.window.showInformationMessage('Error!');
-                                }
-                            });
-                        });
-                    }
-                    else {
-                        vscode.window.showErrorMessage('Unable to show file changes. (Error 2)');
-                    }
-                }
-            }
-            
+            VsCodeDiff();
         });
     });
 
@@ -254,7 +215,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
 
-    async function VsCodeDiff(rev: string) {
+    // rev: empty by default, checkout the head version
+    async function VsCodeDiff(rev: string="") {
         const selected: node.FileItem = selectedFile;
         if(!selected.parent)
             return;
@@ -266,8 +228,9 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage('Fail to checkout file. (Error 1)');
         }
         else {
+            const ver = "head"; // current only provide head
             if (res_co[1]) {
-                const tempFileName = 'rev-'+ rev + '-' + selectedPath.replace(/\//gi, '-');
+                const tempFileName = 'rev-'+ ver + '-' + selectedPath.replace(/\//gi, '-');
                 const tempFilePath = path.join(extRoot, 'temporary', tempFileName);
                 logger.appendLine('tempFileName:' + tempFileName);
                 logger.appendLine('tempFilePath:' + tempFilePath);
