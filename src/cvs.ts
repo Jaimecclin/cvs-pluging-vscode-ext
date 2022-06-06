@@ -30,7 +30,7 @@ export class CVS {
             return spawn('powershell', options, {cwd: this.folderRoot});
         }
         else {
-            logger.appendLine("Linux exe cmd: `" + cmd + ' ' + options.join(' ') + '`');
+            logger.appendLine("$ " + this.folderRoot + " > " + cmd + ' ' + options.join(' '));
             return spawn(cmd, options, {cwd: this.folderRoot});
         }
     }
@@ -147,13 +147,16 @@ export class CVS {
     }
 
     onCheckoutFile(filename: string, rev: string=""): Promise<[number, string | undefined]> {
-        const filepath = path.join(this.repoName, filename);
-        logger.appendLine('checkout file path: ' + filepath);
         let proc: any;
-        if(!rev)
+        if(rev){
+            const filepath = path.join(this.repoName, filename);
             proc = this.createCommand('cvs', ['co', '-p', '-r', rev, filepath]);
-        else
+        }
+        else{
+            // Currently we go here
+            const filepath = filename;
             proc = this.createCommand('cvs', ['-Q', 'update', '-C', '-p', filepath]);
+        }
 
         return new Promise((resolve, reject) => {
             let content = '';
