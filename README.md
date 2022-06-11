@@ -45,7 +45,7 @@ Get all file status from the selected folder.
 
 2. Wait
 
-    ***Please do NOT click the status button repeatedly. If you have a large repository, you might need to wait for a while. CVS is not a fast tool but it gives your the correct result finally.***
+    __Please do NOT click the status button repeatedly. If you have a large repository, you might need to wait for a while. CVS is not a fast tool but it gives your the correct result finally.__
     
     ![refreshing-demo](/resources/readme/refreshing-demo.png "Refreshing Demo")
 
@@ -80,6 +80,15 @@ Get all file status from the selected folder.
 
     ![openfile](/resources/readme/open-file.png "OpenFile")
 
+### cvs annotate
+
+1. Open the file you want to annotate on the editor. This file should be in your repository. Right-click on the file tab title and find `cvs annotate` in the list. For sure, this extension __MUST__ be active to get this button.
+
+    ![anno-1](/resources/readme/annotate-1.png "Annotate file 1")
+
+2. Wait a second then the annotate text will appear like this.
+
+    ![anno-2](/resources/readme/annotate-2.png "Annotate file 2")
 
 ### cvs update
 
