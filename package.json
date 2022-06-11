@@ -6,7 +6,7 @@
       "url": "https://github.com/Jaimecclin/cvs-pluging-vscode-ext"
     },
     "displayName": "CVS-plugin",
-    "icon": "resources/ink-swirl-svgrepo-com.png",
+    "icon": "resources/cvs_logo_color.jpg",
     "description": "A CVS version control extension",
     "version": "0.2.8",
     "engines": {
@@ -92,7 +92,7 @@
           {
             "id": "cvs-plugin",
             "title": "CVS-plugin",
-            "icon": "resources/ink-swirl-svgrepo-com.svg",
+            "icon": "resources/cvs_logo_gray.svg",
             "contextualTitle": "CVS-plugin"
           }
         ]

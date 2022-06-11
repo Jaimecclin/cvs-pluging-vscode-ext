@@ -1,5 +1,9 @@
 # cvs-plugin
 
+<p align="center">
+<img src="/resources/cvs_logo_color.jpg" alt="logo" width="200" height="200"/>
+</p>
+
 CVS is an old but powerful version control software. Honestly, it's a bit out-of-date and young people are not quite familiar with it. If you're such an unfortunate guy and you have to use it in your working environment, this extension will have your back. You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!
 
 **Important**
