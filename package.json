@@ -167,7 +167,7 @@
           {
             "command": "cvs-plugin.openFile",
             "title": "open file",
-            "when": "viewItem == changed",
+            "when": "viewItem == changed || viewItem == conflict",
             "group": "inline"
           }
         ]
