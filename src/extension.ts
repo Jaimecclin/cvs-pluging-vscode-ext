@@ -237,7 +237,7 @@ export function activate(context: vscode.ExtensionContext) {
                 const content = Buffer.from(res_co[1], 'utf8');
                 fs.writeFile(tempFilePath, content, function (err) {
                     if (err) {
-                        vscode.window.showErrorMessage('Fail to checkout file to local');
+                        vscode.window.showErrorMessage('Fail to checkout the file to local');
                         throw err;
                     }
                   });
@@ -259,6 +259,43 @@ export function activate(context: vscode.ExtensionContext) {
         const selectedPath: string = selected.label;
         let uriFilePath = vscode.Uri.file(path.join(repoRoot, selectedPath));
         let success = await vscode.commands.executeCommand('vscode.open', uriFilePath);
+    });
+
+    let cvsAnnotate = vscode.commands.registerCommand('cvs-plugin.annotate', async function (fileUrl: vscode.Uri) {
+        vscode.window.showInformationMessage('CVS Annotate');
+        const uriRepoRoot = vscode.workspace.getWorkspaceFolder(fileUrl);
+        if(!uriRepoRoot) {
+            vscode.window.showErrorMessage('cvs annotate works in multi-root workspaces only');
+            return;
+        }
+        const repoRoot = uriRepoRoot.uri.fsPath;
+        const selectedPath: string = vscode.workspace.asRelativePath(fileUrl.fsPath);
+        const cvs = new CVS(repoRoot, platform);
+        const res_co = await cvs.onAnnotate(selectedPath);
+        if (res_co[0]) {
+            vscode.window.showErrorMessage('Fail to annotate this file. Please check the log.');
+        }
+        else {
+            const ver = "head"; // current only provide head
+            if (res_co[1]) {
+                const tempFileName = 'anno-rev-'+ ver + '-' + selectedPath.replace(/\//gi, '-');
+                const tempFilePath = path.join(extRoot, 'temporary', tempFileName);
+                logger.appendLine('tempFileName:' + tempFileName);
+                logger.appendLine('tempFilePath:' + tempFilePath);
+                const content = Buffer.from(res_co[1], 'utf8');
+                fs.writeFile(tempFilePath, content, function (err) {
+                    if (err) {
+                        vscode.window.showErrorMessage('Fail to save the file to local');
+                        throw err;
+                    }
+                  });
+                let uriFile = vscode.Uri.file(tempFilePath);
+                let success = await vscode.commands.executeCommand('vscode.open', uriFile);
+            }
+            else {
+                vscode.window.showErrorMessage('Fail to annotate this file. (Error 2)');
+            }
+        }
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
@@ -315,6 +352,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(init);
     context.subscriptions.push(cvsStatus);
     context.subscriptions.push(cvsDiff);
+    context.subscriptions.push(cvsAnnotate);
     context.subscriptions.push(filterEnableViewChanged);
     context.subscriptions.push(filterDisableViewChanged);
     context.subscriptions.push(filterEnableViewConflict);

@@ -19,6 +19,7 @@
       "onCommand:cvs-plugin.start",
       "onCommand:cvs-plugin.status",
       "onCommand:cvs-plugin.diff",
+      "onCommand:cvs-plugin.annotate",
       "onCommand:cvs-plugin.cmdTest"
     ],
     "main": "./out/extension.js",
@@ -48,6 +49,10 @@
           "command": "cvs-plugin.diff",
           "title": "cvs diff",
           "icon": "resources/dark/diff.svg"
+        },
+        {
+          "command": "cvs-plugin.annotate",
+          "title": "cvs annotate"
         },
         {
           "command": "cvs-plugin.openFile",
@@ -154,21 +159,24 @@
         "view/item/context": [
           {
             "command": "cvs-plugin.status",
-            "title": "cvs status",
             "when": "viewItem == repository",
             "group": "inline"
           },
           {
             "command": "cvs-plugin.diff",
-            "title": "cvs diff",
             "when": "viewItem == changed",
             "group": "inline"
           },
           {
             "command": "cvs-plugin.openFile",
-            "title": "open file",
             "when": "viewItem == changed || viewItem == conflict",
             "group": "inline"
+          }
+        ],
+        "editor/title/context": [
+          {
+            "command": "cvs-plugin.annotate",
+            "when": "cvs-plugin.started == true"
           }
         ]
       }
