@@ -125,35 +125,35 @@
           },    
           {
             "command": "cvs-plugin.enable_view_changed",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_changed_status == false"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_changed_status == false"
           },
           {
             "command": "cvs-plugin.disable_view_changed",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_changed_status == true"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_changed_status == true"
           },
           {
             "command": "cvs-plugin.enable_view_conflict",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_conflict_status == false"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_conflict_status == false"
           },
           {
             "command": "cvs-plugin.disable_view_conflict",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_conflict_status == true"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_conflict_status == true"
           },
           {
             "command": "cvs-plugin.enable_view_updated",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_updated_status == false"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_updated_status == false"
           },
           {
             "command": "cvs-plugin.disable_view_updated",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_updated_status == true"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_updated_status == true"
           },
           {
             "command": "cvs-plugin.enable_view_questionable",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_questionable_status == false"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_questionable_status == false"
           },
           {
             "command": "cvs-plugin.disable_view_questionable",
-            "when": "cvs-plugin.started == true && cvs-plugin.view_questionable_status == true"
+            "when": "cvs-plugin.started == true && view == changed-files && cvs-plugin.view_questionable_status == true"
           }
         ],
         "view/item/context": [
