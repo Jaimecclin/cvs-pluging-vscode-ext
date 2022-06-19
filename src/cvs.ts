@@ -226,4 +226,35 @@ export class CVS {
             });
         });
     }
+
+    onUpdate(): Promise<[number, string | undefined]> {
+        let proc = this.createCommand('cvs', ['update', '-d']);
+        return new Promise((resolve, reject) => {
+            let content = '';
+            proc.once('exit', (code: number, signal: string) => {
+                logger.appendLine("return code: " + code);
+                if (content.length) {
+                    resolve([code, content]);
+                }
+                else {
+                    resolve([code, undefined]);
+                }
+            });
+
+            proc.once('error', (err: Error) => {
+                logger.appendLine(err.message);
+                reject(err);
+            });
+
+            proc.stdout
+            .on("data", (chunk: string | Buffer) => {
+                content += chunk.toString().replace(/[\r\n]/g, '\n');
+            });
+
+            proc.stderr
+            .on("data", (chunk: string | Buffer) => {
+                logger.appendLine(chunk as string);
+            });
+        });
+    }
 }

@@ -12,6 +12,11 @@
     "engines": {
       "vscode": "^1.65.0"
     },
+    "keywords": [
+      "cvs",
+      "version control",
+      "linux"
+    ],
     "categories": [
       "Other"
     ],
@@ -20,6 +25,7 @@
       "onCommand:cvs-plugin.status",
       "onCommand:cvs-plugin.diff",
       "onCommand:cvs-plugin.annotate",
+      "onCommand:cvs-plugin.update",
       "onCommand:cvs-plugin.cmdTest"
     ],
     "main": "./out/extension.js",
@@ -53,6 +59,11 @@
         {
           "command": "cvs-plugin.annotate",
           "title": "cvs annotate"
+        },
+        {
+          "command": "cvs-plugin.update",
+          "title": "cvs update",
+          "icon": "resources/dark/sync.svg"
         },
         {
           "command": "cvs-plugin.openFile",
@@ -159,6 +170,11 @@
         "view/item/context": [
           {
             "command": "cvs-plugin.status",
+            "when": "viewItem == repository",
+            "group": "inline"
+          },
+          {
+            "command": "cvs-plugin.update",
             "when": "viewItem == repository",
             "group": "inline"
           },

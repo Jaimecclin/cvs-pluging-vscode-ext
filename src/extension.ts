@@ -279,6 +279,42 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    let cvsUpdate = vscode.commands.registerCommand('cvs-plugin.update', async function () {
+        const selected: node.FileItem = selectedFile;
+        if(!(selected instanceof node.FolderItem)) {
+            vscode.window.showErrorMessage('Only folders can be updated');
+            return;
+        }
+        const updateRequest = await vscode.window.showInputBox({
+                title: "cvs update",
+                placeHolder: "yes",
+                prompt: "This command `cvs update` will change your repository. Are you sure you want to continue?",
+                value: "yes"
+            });
+        if(!updateRequest) {
+            return;
+        }
+        if(updateRequest.toLowerCase() != "yes"){
+            return;
+        }
+        const repoRoot = selected.uri.fsPath;
+        const cvs = new CVS(repoRoot, platform);
+        const res_co = await cvs.onUpdate();
+        if (res_co[0]) {
+            logger.appendLine('Fail to update this repository. (Error 1)');
+            vscode.window.showErrorMessage('Fail to update this repository. Please check the log.');
+        } else {
+            if (res_co[1]) {
+                const msg = 'The repository is updated successfully.';
+                vscode.window.showInformationMessage(msg);
+            } else {
+                logger.appendLine('Fail to update this repository. (Error 2)');
+                const msg = 'Fail to update this repository. There might be some conflict files. Please use `cvs status` to check and resolve the conflict.';
+                vscode.window.showErrorMessage(msg);
+            }
+        }
+    });
+
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
         vscode.window.showInformationMessage('Test Command');
     });
@@ -334,6 +370,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(cvsStatus);
     context.subscriptions.push(cvsDiff);
     context.subscriptions.push(cvsAnnotate);
+    context.subscriptions.push(cvsUpdate);
     context.subscriptions.push(filterEnableViewChanged);
     context.subscriptions.push(filterDisableViewChanged);
     context.subscriptions.push(filterEnableViewConflict);
