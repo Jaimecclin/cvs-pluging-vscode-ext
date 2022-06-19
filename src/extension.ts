@@ -25,35 +25,23 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "cvs-plugin" is now active!');
 
-    let workspaceRoot :string | undefined = '';
     let extRoot :string = context.extensionPath;
     let filter: Map<string, boolean> = new Map([['changed', true], 
                                                 ['updated', false],
                                                 ['questionable', false],
                                                 ['conflict', true]]);
-    const fp = new node.FolderProvider(workspaceRoot, filter);
+    const fp = new node.FolderProvider(filter);
     let tree: vscode.TreeView<vscode.TreeItem>;
 
     if (!vscode.workspace.workspaceFolders) {
-        workspaceRoot = vscode.workspace.rootPath;
-        logger.appendLine('Not workspace');
+        const warn = 'There is no folder in the workspace.';
+        logger.appendLine(warn);
+        vscode.window.showWarningMessage(warn);
     }
-    else { // TODO: Test
-        if(vscode.workspace.workspaceFolders.length > 0) {
-            // workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
-            for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
-                logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
-            }
+    else {
+        for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
+            logger.appendLine('Workspace folder ' + i + ' , name :' + vscode.workspace.workspaceFolders[i].name);
         }
-        else {
-            workspaceRoot = vscode.workspace.rootPath;
-            logger.appendLine('workspace else');
-        }
-    }
-
-    if(!workspaceRoot && vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length === 0) {
-        vscode.window.showErrorMessage('CVS-plugin cannot access correct folder.');
-        return;
     }
 
     let platform = process.platform; //windows: win32, linux: linux, MacOS: darwin
@@ -87,19 +75,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand('setContext', 'cvs-plugin.view_questionable_status', filter.get('questionable'));
         
         let folders: node.FileItem[] = [];
-        if(workspaceRoot){
-            const name = workspaceRoot;
-            const uri = vscode.Uri.parse(workspaceRoot);
-            folders.push(new node.FolderItem(name, uri));
-        }
-        else {
-            if(vscode.workspace.workspaceFolders)
-                for(let i=0; i<vscode.workspace.workspaceFolders.length; i++) {
-                    const name = vscode.workspace.workspaceFolders[i].name;
-                    const uri = vscode.workspace.workspaceFolders[i].uri;
-                    folders.push(new node.FolderItem(name, uri));
-                }
-        }
+        if(vscode.workspace.workspaceFolders)
+            for(let i=0; i<vscode.workspace.workspaceFolders.length; i++) {
+                const name = vscode.workspace.workspaceFolders[i].name;
+                const uri = vscode.workspace.workspaceFolders[i].uri;
+                folders.push(new node.FolderItem(name, uri));
+            }
         fp.setData(folders);
         tree = vscode.window.createTreeView('changed-files', {treeDataProvider: fp, showCollapseAll: true});
         tree.onDidChangeSelection( e => setSelectedFile(<node.FileItem>(e.selection[0])) );

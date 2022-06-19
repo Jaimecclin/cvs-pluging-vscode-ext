@@ -25,8 +25,7 @@ export class FolderProvider implements vscode.TreeDataProvider<FileItem> {
     readonly onDidChangeTreeData: vscode.Event<FileItem | undefined | void> = this._onDidChangeTreeData.event;
     private filter: Map<string, boolean>;
     private data: FileItem[] = [];
-    constructor(private workspaceRoot: string | undefined,
-                filter: Map<string, boolean>) {
+    constructor(filter: Map<string, boolean>) {
         this.filter = filter;
     }
 
