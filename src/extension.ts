@@ -264,7 +264,8 @@ export function activate(context: vscode.ExtensionContext) {
     let cvsAnnotate = vscode.commands.registerCommand('cvs-plugin.annotate', async function (fileUrl: vscode.Uri) {
         const uriRepoRoot = vscode.workspace.getWorkspaceFolder(fileUrl);
         if(!uriRepoRoot) {
-            vscode.window.showErrorMessage('cvs annotate works in multi-root workspaces only');
+            logger.appendLine(fileUrl.fsPath + " is not found in workspace.")
+            vscode.window.showErrorMessage('This file is not included in the workspace.');
             return;
         }
         const repoRoot = uriRepoRoot.uri.fsPath;
