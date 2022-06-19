@@ -4,7 +4,7 @@
 <img src="/resources/cvs_logo_color.jpg" alt="logo" width="200" height="200"/>
 </p>
 
-CVS is an old but powerful version control software. Honestly, it's a bit out-of-date and young people are not quite familiar with it. If you're such an unfortunate guy and you have to use it in your working environment, this extension will have your back. You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!
+CVS is an old but powerful version control software. Honestly, it's a bit out-of-date and young people are not quite familiar with it. :frowning_face: If you're such an unfortunate guy :pleading_face: and you have to use it in your working environment, this extension will have your back.:call_me_hand: You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!:v:
 
 **Important**
 
@@ -16,6 +16,16 @@ This extension supports **multi-root** workspaces. Please open each CVS reposito
 
   1. Ubuntu 20.04
    * Concurrent Versions System (CVS) 1.12.13-MirDebian-27 (client/server)
+
+## Table of Contents
+  - [Activate this extension](#activate-this-extension)
+  - [cvs status](#cvs-status)
+  - [cvs diff file](#cvs-diff-file)
+  - [cvs annotate](#cvs-annotate)
+  - [cvs update](#cvs-update)
+  - [cvs commit](#cvs-commit)
+  - [Misc.](#misc)
+  - [Release note](#release-note)
 
 # Functions
 
@@ -92,7 +102,22 @@ Get all file status from the selected folder.
 
 ### cvs update
 
-    *Under construction*
+1. Select the repository you want to __update__ and click the update button.
+
+    ![update-1](/resources/readme/update-1.png "Update repo 1")
+
+2. Because this action will change your repository, you need to be certain of it. Please fill in __yes__ in the dialog.
+
+    ![update-2](/resources/readme/update-2.png "Update repo 2")
+
+3. Wait a minute. You will see the success message like __The repository is updated successfully__.
+
+4. If the update action fails, there might be some conflict. Please check the file status with [cvs status](#cvs-status) button. Then open the file and resolve it.
+
+    ![update-conflict](/resources/readme/update-conflict.png "Update repo conflict")
+
+    *** Note ***
+    This functionality is only tested in my personal env. If you have any problem with it. Please report the log to me. It would be extremely helpful. Thanks a lot. :wink:
 
 ### cvs commit
 
@@ -107,7 +132,7 @@ You can check the extension log __cvs-plugin-log__ from VSCode OUTPUT Panel. It 
 
 
 
-**Any bugs, please report it to this repository. Enjoy!**
+:vulcan_salute: :vulcan_salute: :vulcan_salute:Any bugs, please report it to this repository. Enjoy! :vulcan_salute: :vulcan_salute: :vulcan_salute: 
 
 
 ### Release note
@@ -115,4 +140,5 @@ You can check the extension log __cvs-plugin-log__ from VSCode OUTPUT Panel. It 
 * 6/3/2022 v0.2.6 Show the executed commands in VSCode output panel `cvs-plugin-log`
 * 6/3/2022 v0.2.7 Show the return code in the log. Change the cvs command to get head version contents. Thanks for [dddonovan](https://github.com/dddonovan)'s help.
 * 6/11/2022 v0.2.9 Update the extension logo.
-* 6/12/2022 v0.3.0 `cvs annoate` is ready.
+* 6/12/2022 v0.3.0 `cvs annotate` is ready.
+* 6/19/2022 v0.3.1 Fix `cvs annotate` in single folder. Introduce the new feature `cvs update` so users can get the latest code by this new functionality.
