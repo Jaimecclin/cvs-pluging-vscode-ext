@@ -142,3 +142,4 @@ You can check the extension log __cvs-plugin-log__ from VSCode OUTPUT Panel. It 
 * 6/11/2022 v0.2.9 Update the extension logo.
 * 6/12/2022 v0.3.0 `cvs annotate` is ready.
 * 6/19/2022 v0.3.1 Fix `cvs annotate` in single folder. Introduce the new feature `cvs update` so users can get the latest code by this new functionality.
+* 6/23/2022 v0.3.2 Try to fix the path problem in `cvs annotate`. And let `cvs update` run with progress bar.
