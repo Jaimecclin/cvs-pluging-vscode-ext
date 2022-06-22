@@ -250,7 +250,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         const repoRoot = uriRepoRoot.uri.fsPath;
-        const selectedPath: string = vscode.workspace.asRelativePath(fileUrl.fsPath);
+        const selectedPath: string = path.relative(repoRoot, fileUrl.fsPath);
         const cvs = new CVS(repoRoot, platform);
         const res_co = await cvs.onAnnotate(selectedPath);
         if (res_co[0]) {
@@ -297,22 +297,28 @@ export function activate(context: vscode.ExtensionContext) {
         if(updateRequest.toLowerCase() != "yes"){
             return;
         }
-        const repoRoot = selected.uri.fsPath;
-        const cvs = new CVS(repoRoot, platform);
-        const res_co = await cvs.onUpdate();
-        if (res_co[0]) {
-            logger.appendLine('Fail to update this repository. (Error 1)');
-            vscode.window.showErrorMessage('Fail to update this repository. Please check the log.');
-        } else {
-            if (res_co[1]) {
-                const msg = 'The repository is updated successfully.';
-                vscode.window.showInformationMessage(msg);
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Window,
+            cancellable: false,
+            title: 'CVS-plugin is working...'
+        }, async progress => {
+            const repoRoot = selected.uri.fsPath;
+            const cvs = new CVS(repoRoot, platform);
+            const res_co = await cvs.onUpdate();
+            if (res_co[0]) {
+                logger.appendLine('Fail to update this repository. (Error 1)');
+                vscode.window.showErrorMessage('Fail to update this repository. Please check the log.');
             } else {
-                logger.appendLine('Fail to update this repository. (Error 2)');
-                const msg = 'Fail to update this repository. There might be some conflict files. Please use `cvs status` to check and resolve the conflict.';
-                vscode.window.showErrorMessage(msg);
+                if (res_co[1]) {
+                    const msg = 'The repository is updated successfully.';
+                    vscode.window.showInformationMessage(msg);
+                } else {
+                    logger.appendLine('Fail to update this repository. (Error 2)');
+                    const msg = 'Fail to update this repository. There might be some conflict files. Please use `cvs status` to check and resolve the conflict.';
+                    vscode.window.showErrorMessage(msg);
+                }
             }
-        }
+        });
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
