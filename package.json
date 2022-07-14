@@ -8,7 +8,7 @@
     "displayName": "CVS-plugin",
     "icon": "resources/cvs_logo_color.jpg",
     "description": "A CVS version control extension",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "engines": {
       "vscode": "^1.65.0"
     },
