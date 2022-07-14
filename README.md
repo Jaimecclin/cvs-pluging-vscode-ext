@@ -4,13 +4,15 @@
 <img src="/resources/cvs_logo_color.jpg" alt="logo" width="200" height="200"/>
 </p>
 
-CVS is an old but powerful version control software. Honestly, it's a bit out-of-date and young people are not quite familiar with it. :frowning_face: If you're such an unfortunate guy :pleading_face: and you have to use it in your working environment, this extension will have your back.:call_me_hand: You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!:v:
+CVS is an old but powerful version control software. Honestly, it's a bit out-of-date and young people are not quite familiar with it. If you're such an unfortunate guy and you have to use it in your working environment, this extension will have your back. You can easily acquire `Visual Studio Code` style `diff` instead of incomprehensible `CVS diff`. Hope you like it!
 
 **Important**
 
-This extension supports **multi-root** workspaces. Please open each CVS repository at the top of the workspace, like this
+1. This extension supports **multi-root** workspaces. Please open each CVS repository at the top of the workspace, like this
 
-![file-hierachy](/resources/readme/file-hierachy.png "Folder structure")
+    ![file-hierachy](/resources/readme/file-hierachy.png "Folder structure")
+
+2. I highly recommend to work alongside [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) and [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) so that you're able to do some tricks on your remote CVS repository.
 
 ### Tested environment
 
@@ -117,7 +119,7 @@ Get all file status from the selected folder.
     ![update-conflict](/resources/readme/update-conflict.png "Update repo conflict")
 
     *** Note ***
-    This functionality is only tested in my personal env. If you have any problem with it. Please report the log to me. It would be extremely helpful. Thanks a lot. :wink:
+    This functionality is only tested in my personal env. If you have any problem with it. Please report the log to me. It would be extremely helpful. Thanks a lot.
 
 ### cvs commit
 
@@ -132,4 +134,4 @@ You can check the extension log __cvs-plugin-log__ from VSCode OUTPUT Panel. It 
 
 
 
-:vulcan_salute: :vulcan_salute: :vulcan_salute:Any bugs, please report it to this repository. Enjoy! :vulcan_salute: :vulcan_salute: :vulcan_salute: 
+Any bugs, please report it to this repository. Enjoy!
