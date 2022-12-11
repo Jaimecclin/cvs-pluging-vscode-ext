@@ -341,12 +341,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
-        const value = await vscode.window.showQuickPick([
-            {label: 'explorer', description: 'explorer 1'},
-            {label: 'search', description: 'search 2'}
-        ], { placeHolder: 'Select the view to show when opening a window.' });
-        logger.appendLine('ssssss ' + value.label);
-        // vscode.window.showInformationMessage(value);
+        vscode.window.showInformationMessage("Test Command");
     });
 
     let filterEnableViewChanged = vscode.commands.registerCommand('cvs-plugin.enable_view_changed', async function () {
