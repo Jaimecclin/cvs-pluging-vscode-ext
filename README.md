@@ -20,14 +20,17 @@ CVS is an old but powerful version control software. Honestly, it's a bit out-of
    * Concurrent Versions System (CVS) 1.12.13-MirDebian-27 (client/server)
 
 ## Table of Contents
-  - [Activate this extension](#activate-this-extension)
-  - [cvs status](#cvs-status)
-  - [cvs diff file](#cvs-diff-file)
-  - [cvs annotate](#cvs-annotate)
-  - [cvs update](#cvs-update)
-  - [cvs commit](#cvs-commit)
-  - [Misc.](#misc)
-  - [Release note](#release-note)
+- [cvs-plugin](#cvs-plugin)
+    - [Tested environment](#tested-environment)
+  - [Table of Contents](#table-of-contents)
+- [Functions](#functions)
+    - [Activate this extension](#activate-this-extension)
+    - [cvs status](#cvs-status)
+    - [cvs diff file](#cvs-diff-file)
+    - [cvs annotate](#cvs-annotate)
+    - [cvs update](#cvs-update)
+    - [cvs commit](#cvs-commit)
+    - [Misc.](#misc)
 
 # Functions
 
@@ -80,13 +83,15 @@ Get all file status from the selected folder.
 
 ### cvs diff file
 
-1. Select the file you want to compare and click the diff button.
+1. Select the file you want to compare and click the diff button. All revisions would be shown in the list. Just Select what you want.
 
-    ![diff](/resources/readme/diff.png "Diff")
+    ![diff](/resources/readme/diff-1.png "Diff 1")
+
+    ![diff](/resources/readme/diff-2.png "Diff 2")
 
     *** Note ***
     
-    This function is a bit different than the standard `cvs diff`. The diff content is from comparing the current code to the latest revision code instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
+    This function is a bit different than the standard `cvs diff`. The diff content is from comparing the current code to __the revision code__ you selected instead of the previous one. Therefore, it's highly recommended that you always perform `cvs update`.
 
 2. (Not essential) You can click this button to open the file.
 

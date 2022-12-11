@@ -7,3 +7,6 @@
 * 6/19/2022 v0.3.1 Fix `cvs annotate` in single folder. Introduce the new feature `cvs update` so users can get the latest code by this new functionality.
 * 6/23/2022 v0.3.2 Try to fix the path problem in `cvs annotate`. And let `cvs update` run with progress bar.
 * 7/14/2022 v0.3.3 Add more information in readme.
+* 12/9/2022 Add a license.
+* 12/11/2022 v0.3.4 It's available to compare current code to a specific revision.
+ 

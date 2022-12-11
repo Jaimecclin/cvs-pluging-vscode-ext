@@ -37,12 +37,10 @@ export class CVS {
 
     onGetRevision(filePath: string): Promise<[number, string | undefined]> {
         const cvs = this.createCommand("cvs", ["log", "-bSN", filePath]);
-        const head = this.createCommand("head", ["-n", "50"]);
-        const grep = this.createCommand('grep', ["-m", "1", "-Po", "revision \d*.\d*"]);
+        const grep = this.createCommand('grep', ["-P", "revision .*$"]);
         const tr = this.createCommand('tr', ["-d", "revision "]);
 
-        cvs.stdout.pipe(head.stdin);
-        head.stdout.pipe(grep.stdin);
+        cvs.stdout.pipe(grep.stdin);
         grep.stdout.pipe(tr.stdin);
         tr.stdout.pipe(process.stdin);
         grep.on('close', () => {

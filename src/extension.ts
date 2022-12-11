@@ -204,14 +204,33 @@ export function activate(context: vscode.ExtensionContext) {
         const repoRoot = selected.parent.uri.fsPath;
         const selectedPath: string = selected.label;
         const cvs = new CVS(repoRoot, platform);
+        const res_rev_li = await cvs.onGetRevision(selectedPath);
+        if (res_rev_li[0]) {
+            vscode.window.showErrorMessage('Fail to get all revisions. Use head to do diff.');
+        } else {
+            if (res_rev_li[1]) {
+                const splited_rev: string[] = res_rev_li[1].split('\n');
+                let quick_pick_item = [];
+                quick_pick_item.push({ label: splited_rev[0], description: 'head' });
+                for(let i=1; i<splited_rev.length; i++) {
+                    quick_pick_item.push({ label: splited_rev[i], description: '' });
+                }
+                const pick = await vscode.window.showQuickPick(quick_pick_item, { placeHolder: 'Select the revision you want to diff. The list is sorted by time.' });
+                if(pick)
+                    rev = pick.label;
+            }
+        }
+        logger.appendLine('selected revision: ' + rev);
+
         const res_co = await cvs.onCheckoutFile(selectedPath, rev);
         if (res_co[0]) {
             vscode.window.showErrorMessage('Fail to checkout file. (Error 1)');
-        }
-        else {
-            const ver = "head"; // current only provide head
+        } else {
+            let ver_str = "head";
+            if(!rev)
+                ver_str = rev;
             if (res_co[1]) {
-                const tempFileName = 'rev-'+ ver + '-' + selectedPath.replace(/\//gi, '-');
+                const tempFileName = 'rev-'+ ver_str + '-' + selectedPath.replace(/\//gi, '-');
                 const tempFilePath = path.join(extRoot, 'temporary', tempFileName);
                 logger.appendLine('tempFileName:' + tempFileName);
                 logger.appendLine('tempFilePath:' + tempFilePath);
@@ -322,7 +341,12 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
-        vscode.window.showInformationMessage('Test Command');
+        const value = await vscode.window.showQuickPick([
+            {label: 'explorer', description: 'explorer 1'},
+            {label: 'search', description: 'search 2'}
+        ], { placeHolder: 'Select the view to show when opening a window.' });
+        logger.appendLine('ssssss ' + value.label);
+        // vscode.window.showInformationMessage(value);
     });
 
     let filterEnableViewChanged = vscode.commands.registerCommand('cvs-plugin.enable_view_changed', async function () {
