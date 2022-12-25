@@ -24,6 +24,7 @@
       "onCommand:cvs-plugin.start",
       "onCommand:cvs-plugin.status",
       "onCommand:cvs-plugin.diff",
+      "onCommand:cvs-plugin.revert",
       "onCommand:cvs-plugin.annotate",
       "onCommand:cvs-plugin.update",
       "onCommand:cvs-plugin.cmdTest"
@@ -64,6 +65,11 @@
           "command": "cvs-plugin.update",
           "title": "cvs update",
           "icon": "resources/dark/sync.svg"
+        },
+        {
+          "command": "cvs-plugin.revert",
+          "title": "revert file",
+          "icon": "resources/dark/remove.svg"
         },
         {
           "command": "cvs-plugin.openFile",
@@ -181,6 +187,11 @@
           {
             "command": "cvs-plugin.diff",
             "when": "viewItem == changed",
+            "group": "inline"
+          },
+          {
+            "command": "cvs-plugin.revert",
+            "when": "viewItem == changed || viewItem == conflict",
             "group": "inline"
           },
           {

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 class WhiteBoard {
     private wb;
-    private debug: boolean = false;
+    private debug: boolean = true;
     constructor() {
         this.wb = vscode.window.createOutputChannel("cvs-plugin-log");
         this.wb.show();

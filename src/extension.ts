@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
-    let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', async function () {
+    async function getStatus() {
         if(!selectedFile){
             vscode.window.showErrorMessage('No selected CVS folder');
             return;
@@ -161,7 +161,9 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
         
-    });
+    }
+
+    let cvsStatus = vscode.commands.registerCommand('cvs-plugin.status', getStatus);
 
     let cvsDiff = vscode.commands.registerCommand('cvs-plugin.diff', async function () {
         if(!selectedFile){
@@ -340,6 +342,63 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
+    let cvsRevert = vscode.commands.registerCommand('cvs-plugin.revert', async function () {
+        if(!selectedFile){
+            vscode.window.showErrorMessage('Please select a file to revert.');
+            return;
+        }
+        if(!(selectedFile instanceof node.FileItem)) {
+            vscode.window.showErrorMessage('Please select a file to revert.');
+            return;
+        }
+
+        if(!(selectedFile instanceof node.ChangedItem)) {
+            vscode.window.showErrorMessage('Please select a modified file to revert.');
+            return;
+        }
+        logger.appendLine('cvsRevert');
+
+        const revertRequest = await vscode.window.showInputBox({
+            title: "cvs revert",
+            placeHolder: "yes",
+            prompt: "This command will revert all changes of this file. Are you sure you want to continue?",
+            value: "yes"
+        });
+
+        if(!revertRequest) {
+            return;
+        }
+
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Window,
+            cancellable: false,
+            title: 'CVS-plugin is working...'
+        }, async progress => {
+            const selected: node.FileItem = selectedFile;
+            const selected_parent = selected.parent;
+            if(!selected_parent) {
+                vscode.window.showErrorMessage('Something wrong in revert file.');
+                return;
+            }
+            const repoRoot = selected_parent.uri.fsPath;
+            const selectedPath: string = selected.label;
+            const cvs = new CVS(repoRoot, platform);
+            const res_revert = await cvs.onRevert(selectedPath);
+            if (res_revert[0]) {
+                vscode.window.showErrorMessage('Fail to revert this file. Please check the log.');
+            } else {
+                if (res_revert[1]) {
+                    logger.appendLine('revert successfully');
+                    selectedFile = selected_parent;
+                    logger.appendLine('do update' + selectedFile.label);
+                    getStatus();
+                    logger.appendLine('update successfully');
+                }
+            }
+            
+        });
+    });
+
     let cmdTest = vscode.commands.registerCommand('cvs-plugin.cmdTest', async function () {
         vscode.window.showInformationMessage("Test Command");
     });
@@ -394,6 +453,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(init);
     context.subscriptions.push(cvsStatus);
     context.subscriptions.push(cvsDiff);
+    context.subscriptions.push(cvsRevert);
     context.subscriptions.push(cvsAnnotate);
     context.subscriptions.push(cvsUpdate);
     context.subscriptions.push(filterEnableViewChanged);
