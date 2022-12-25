@@ -26,9 +26,10 @@ CVS is an old but powerful version control software. Honestly, it's a bit out-of
 - [Functions](#functions)
     - [Activate this extension](#activate-this-extension)
     - [cvs status](#cvs-status)
-    - [cvs diff file](#cvs-diff-file)
+    - [cvs diff](#cvs-diff)
     - [cvs annotate](#cvs-annotate)
     - [cvs update](#cvs-update)
+    - [cvs revert](#cvs-revert)
     - [cvs commit](#cvs-commit)
     - [Misc.](#misc)
 
@@ -81,7 +82,7 @@ Get all file status from the selected folder.
     ![refresh-filter-2](/resources/readme/refresh-filter-2.png "Filter 2")
 
 
-### cvs diff file
+### cvs diff
 
 1. Select the file you want to compare and click the diff button. All revisions would be shown in the list. Just Select what you want.
 
@@ -125,6 +126,20 @@ Get all file status from the selected folder.
 
     *** Note ***
     This functionality is only tested in my personal env. If you have any problem with it. Please report the log to me. It would be extremely helpful. Thanks a lot.
+
+### cvs revert
+
+Revert all changes of this file.
+
+1. Select the repository you want to __revert__ and click the revert button.
+
+    ![revert-1](/resources/readme/revert-1.png "Revert file 1")
+
+2. Because this action will change this file, you need to be sure. Please fill in __yes__ in the dialog.
+
+    ![revert-2](/resources/readme/revert-2.png "Revert file 1")
+
+3. If revert action works well, CVS-plugin would refresh the repository status at the end. You should see the modified file is remove from the list. 
 
 ### cvs commit
 
