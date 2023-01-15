@@ -31,25 +31,23 @@ export class CVS {
         }
         else {
             logger.appendLine("$ " + this.folderRoot + " > " + cmd + ' ' + options.join(' '));
-            return spawn(cmd, options, {cwd: this.folderRoot});
+            return spawn(cmd, options, {cwd: this.folderRoot, shell: true});
         }
     }
 
     onGetRevision(filePath: string): Promise<[number, string | undefined]> {
         const cvs = this.createCommand("cvs", ["log", "-bSN", filePath]);
-        const grep = this.createCommand('grep', ["-P", "revision .*$"]);
-        const tr = this.createCommand('tr', ["-d", "revision "]);
+        const grep = this.createCommand('grep', ["-Po", '"revision \\K[\\d+\\.]+\\d+"']);
 
         cvs.stdout.pipe(grep.stdin);
-        grep.stdout.pipe(tr.stdin);
-        tr.stdout.pipe(process.stdin);
+        grep.stdout.pipe(process.stdin);
         grep.on('close', () => {
             logger.appendLine('grep command is closing');
         });
 
         return new Promise((resolve, reject) => {
             let res = '';
-            tr.once('exit', (code: number, signal: string) => {
+            grep.once('exit', (code: number, signal: string) => {
                 logger.appendLine("return code: " + code);
                 if (res.length) {
                     resolve([code, res]);
@@ -59,18 +57,18 @@ export class CVS {
                 }
             });
 
-            tr.once('error', (err: Error) => {
+            grep.once('error', (err: Error) => {
                 logger.appendLine('error: ' + err);
                 reject(err);
             });
 
-            tr.stdout
+            grep.stdout
             .on("data", (chunk: string | Buffer) => {
                 // logger.appendLine('stdout: ' + chunk);
                 res += chunk.toString().replace(/[\r\n]/g, '\n');
             });
 
-            tr.stderr
+            grep.stderr
             .on("data", (chunk: string | Buffer) => {
                 logger.appendLine(chunk as string);
             });
