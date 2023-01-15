@@ -10,3 +10,4 @@
 * 12/9/2022 Add a license.
 * 12/11/2022 v0.3.4 It's available to compare current code to a specific revision.
 * 12/25/2022 v0.3.5 Merry Christmas! New features - revert file.
+* 1/15/2023 v0.3.6 Update the regex to catch correct revision of locked file.
